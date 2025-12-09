@@ -384,6 +384,11 @@
             </div>
           </div>
         </div>
+
+        <!-- 表格权限管理页面 -->
+        <div v-if="currentTab === 'tableManagement'">
+          <TablePermissionManagement />
+        </div>
       </main>
     </div>
 
@@ -459,6 +464,7 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
+import TablePermissionManagement from './TablePermissionManagement.vue'
 
 const searchQuery = ref('')
 const showSyncModal = ref(false)
@@ -479,7 +485,8 @@ const statuses = [
 const tabs = [
   { id: 'applicationList', label: '申请列表' },
   { id: 'approvalPage', label: '审批详情' },
-  { id: 'permissionSetting', label: '权限设置' }
+  { id: 'permissionSetting', label: '权限设置' },
+  { id: 'tableManagement', label: '表格权限管理' }
 ]
 
 const applications = ref([

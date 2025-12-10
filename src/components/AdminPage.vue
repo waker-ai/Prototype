@@ -9,9 +9,9 @@
       <div class="ml-auto flex items-center space-x-6">
         <div class="relative">
           <input
-            v-model="searchQuery"
-            class="w-64 px-4 py-2 bg-gray-100 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600"
-            placeholder="搜索表格..." type="text" />
+              v-model="searchQuery"
+              class="w-64 px-4 py-2 bg-gray-100 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+              placeholder="搜索表格..." type="text" />
           <iconify-icon class="absolute right-3 top-2.5 text-gray-500 text-xl" icon="mdi:magnify"></iconify-icon>
         </div>
         <div class="flex items-center space-x-2 py-1">
@@ -23,12 +23,11 @@
         </router-link>
       </div>
     </header>
-
     <!-- 页面选项卡 -->
     <div class="bg-white border-b border-gray-200 px-8">
       <div class="flex items-center space-x-1">
         <button @click="currentTab = 'tableSpace'"
-          :class="['px-6 py-3 font-medium transition border-b-2',
+                :class="['px-6 py-3 font-medium transition border-b-2',
             currentTab === 'tableSpace'
               ? 'border-indigo-600 text-indigo-700'
               : 'border-transparent text-gray-600 hover:text-indigo-700']">
@@ -36,7 +35,7 @@
           表格空间
         </button>
         <button @click="currentTab = 'permissions'"
-          :class="['px-6 py-3 font-medium transition border-b-2 relative',
+                :class="['px-6 py-3 font-medium transition border-b-2 relative',
             currentTab === 'permissions'
               ? 'border-indigo-600 text-indigo-700'
               : 'border-transparent text-gray-600 hover:text-indigo-700']">
@@ -45,7 +44,7 @@
           <span v-if="pendingPermissionRequests > 0" class="absolute top-1 right-1 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">{{ pendingPermissionRequests }}</span>
         </button>
         <button @click="currentTab = 'applications'"
-          :class="['px-6 py-3 font-medium transition border-b-2 relative',
+                :class="['px-6 py-3 font-medium transition border-b-2 relative',
             currentTab === 'applications'
               ? 'border-indigo-600 text-indigo-700'
               : 'border-transparent text-gray-600 hover:text-indigo-700']">
@@ -54,7 +53,7 @@
           <span v-if="pendingPermissionRequests > 0" class="absolute top-1 right-1 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">{{ pendingPermissionRequests }}</span>
         </button>
         <button @click="currentTab = 'dataSync'"
-          :class="['px-6 py-3 font-medium transition border-b-2 relative',
+                :class="['px-6 py-3 font-medium transition border-b-2 relative',
             currentTab === 'dataSync'
               ? 'border-indigo-600 text-indigo-700'
               : 'border-transparent text-gray-600 hover:text-indigo-700']">
@@ -64,7 +63,6 @@
         </button>
       </div>
     </div>
-
     <!-- 主容器 -->
     <div class="flex-1 overflow-hidden flex">
       <!-- 表格空间标签页 -->
@@ -75,25 +73,23 @@
             <h2 class="text-lg font-bold text-gray-900">管理的表格</h2>
             <p class="text-xs text-gray-600 mt-1">共 {{ adminTables.length }} 个表格</p>
           </div>
-
           <!-- 搜索 -->
           <div class="border-b border-gray-200 p-4">
             <div class="relative">
               <input v-model="tableSearchQuery" type="text" placeholder="搜索表格..."
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" />
+                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" />
               <iconify-icon icon="mdi:magnify" class="absolute right-3 top-2.5 text-gray-500"></iconify-icon>
             </div>
           </div>
-
           <!-- 表格列表 -->
           <div class="flex-1 overflow-y-auto">
             <div class="space-y-2 p-3">
               <div v-for="table in filteredAdminTables" :key="table.id"
-                :class="['p-4 rounded-lg border-l-4 transition hover:shadow-md cursor-pointer',
+                   :class="['p-4 rounded-lg border-l-4 transition hover:shadow-md cursor-pointer',
                   selectedTableId === table.id
                     ? 'border-l-indigo-600 bg-indigo-50 border border-indigo-200'
                     : 'border-l-gray-300 bg-white border border-gray-200 hover:border-gray-300']"
-                @click="selectedTableId = table.id">
+                   @click="selectedTableId = table.id">
                 <h3 class="font-medium text-gray-900">{{ table.name }}</h3>
                 <p class="text-xs text-gray-600 mt-1 line-clamp-2">{{ table.description }}</p>
                 <div class="flex items-center justify-between mt-3">
@@ -106,7 +102,6 @@
             </div>
           </div>
         </div>
-
         <!-- 右侧：表格详情 -->
         <div class="flex-1 flex flex-col m-6 ml-3">
           <div v-if="selectedTable" class="bg-white rounded-xl shadow flex flex-col overflow-hidden h-full">
@@ -124,6 +119,10 @@
                 <button @click="goToDataSync" class="text-white hover:bg-indigo-800 rounded-lg px-3 py-2 flex items-center space-x-1 transition">
                   <iconify-icon icon="mdi:cloud-sync" class="text-xl"></iconify-icon>
                   <span class="text-sm font-medium">数据同步</span>
+                </button>
+                <button @click="importTableData(selectedTableId)" class="text-white hover:bg-indigo-800 rounded-lg px-3 py-2 flex items-center space-x-1 transition">
+                  <iconify-icon icon="mdi:upload" class="text-xl"></iconify-icon>
+                  <span class="text-sm font-medium">导入</span>
                 </button>
                 <button @click="exportTableData(selectedTableId)" class="text-white hover:bg-indigo-800 rounded-lg px-3 py-2 flex items-center space-x-1 transition">
                   <iconify-icon icon="mdi:download" class="text-xl"></iconify-icon>
@@ -146,7 +145,6 @@
                 </div>
               </div>
             </div>
-
             <!-- 表格信息 -->
             <div class="p-6 border-b border-gray-200">
               <div class="grid grid-cols-3 gap-6">
@@ -170,30 +168,28 @@
                 </div>
               </div>
             </div>
-
             <!-- 表格预览/编辑 -->
             <div v-if="!isEditingTable" class="flex-1 overflow-auto p-6">
               <table class="w-full text-sm border-collapse">
                 <thead class="bg-gray-100 sticky top-0">
-                  <tr>
-                    <th v-for="col in selectedTable.allColumns" :key="col"
+                <tr>
+                  <th v-for="col in selectedTable.allColumns" :key="col"
                       class="px-4 py-3 text-left font-semibold text-gray-700 border-b-2 border-gray-200">
-                      {{ col }}
-                    </th>
-                  </tr>
+                    {{ col }}
+                  </th>
+                </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(row, idx) in getTableData(selectedTableId)" :key="idx"
+                <tr v-for="(row, idx) in getTableData(selectedTableId)" :key="idx"
                     class="hover:bg-gray-50 border-b border-gray-200">
-                    <td v-for="col in selectedTable.allColumns" :key="col"
+                  <td v-for="col in selectedTable.allColumns" :key="col"
                       class="px-4 py-3 text-gray-700">
-                      {{ row[col] || '-' }}
-                    </td>
-                  </tr>
+                    {{ row[col] || '-' }}
+                  </td>
+                </tr>
                 </tbody>
               </table>
             </div>
-
             <!-- 编辑模式 -->
             <div v-else class="flex-1 overflow-auto p-6 bg-yellow-50">
               <div class="mb-4 p-4 bg-yellow-100 border border-yellow-300 rounded-lg text-yellow-800 text-sm">
@@ -202,19 +198,19 @@
               </div>
               <table class="w-full text-sm border-collapse border border-gray-300 bg-white">
                 <thead class="bg-gray-100 sticky top-0">
-                  <tr>
-                    <th v-for="col in selectedTable.allColumns" :key="col"
+                <tr>
+                  <th v-for="col in selectedTable.allColumns" :key="col"
                       class="px-4 py-3 text-left font-semibold text-gray-700 border border-gray-300">
-                      {{ col }}
-                    </th>
-                  </tr>
+                    {{ col }}
+                  </th>
+                </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(row, idx) in getTableData(selectedTableId)" :key="idx"
+                <tr v-for="(row, idx) in getTableData(selectedTableId)" :key="idx"
                     :class="['border-b border-gray-300', changedRows.includes(idx) ? 'bg-yellow-100' : 'bg-white hover:bg-gray-50']">
-                    <td v-for="col in selectedTable.allColumns" :key="col"
+                  <td v-for="col in selectedTable.allColumns" :key="col"
                       class="px-0 py-0 border border-gray-300">
-                      <input 
+                    <input
                         :value="editingTableData[idx + '-' + col] !== undefined ? editingTableData[idx + '-' + col] : (row[col] || '')"
                         @input="(e) => {
                           editingTableData[idx + '-' + col] = e.target.value
@@ -229,24 +225,23 @@
                           }
                         }"
                         class="w-full px-4 py-3 border-0 focus:ring-2 focus:ring-blue-500 focus:outline-none bg-transparent"
-                      />
-                    </td>
-                  </tr>
+                    />
+                  </td>
+                </tr>
                 </tbody>
               </table>
               <div class="mt-6 flex gap-3">
                 <button @click="submitTableChangesForReview"
-                  class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition">
+                        class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition">
                   提交审核
                 </button>
                 <button @click="cancelTableEdit"
-                  class="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 font-medium transition">
+                        class="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 font-medium transition">
                   取消编辑
                 </button>
               </div>
             </div>
           </div>
-
           <!-- 未选中表格提示 -->
           <div v-else class="bg-white rounded-xl shadow flex items-center justify-center h-full">
             <div class="text-center">
@@ -257,106 +252,6 @@
           </div>
         </div>
       </template>
-
-      <!-- 管理标签页 -->
-      <template v-else-if="currentTab === 'management'">
-        <!-- 左侧筛选面板 -->
-        <aside class="w-80 bg-white rounded-xl shadow flex flex-col m-6 mr-3">
-          <div class="border-b border-gray-200 p-4">
-            <h2 class="text-lg font-bold text-gray-900">管理选项</h2>
-          </div>
-
-          <div class="flex-1 overflow-y-auto">
-            <div class="space-y-2 p-3">
-              <button @click="managementTab = 'applications'"
-                :class="['w-full text-left px-4 py-3 rounded-lg transition',
-                  managementTab === 'applications'
-                    ? 'bg-indigo-100 text-indigo-700 font-medium border-l-4 border-l-indigo-600'
-                    : 'text-gray-700 hover:bg-gray-100']">
-                <iconify-icon icon="mdi:clipboard-check" class="inline mr-2"></iconify-icon>
-                权限申请审批
-              </button>
-              <button @click="managementTab = 'tableEdit'"
-                :class="['w-full text-left px-4 py-3 rounded-lg transition',
-                  managementTab === 'tableEdit'
-                    ? 'bg-indigo-100 text-indigo-700 font-medium border-l-4 border-l-indigo-600'
-                    : 'text-gray-700 hover:bg-gray-100']">
-                <iconify-icon icon="mdi:pencil-multiple" class="inline mr-2"></iconify-icon>
-                编辑变更审核
-              </button>
-              <button @click="managementTab = 'versions'"
-                :class="['w-full text-left px-4 py-3 rounded-lg transition',
-                  managementTab === 'versions'
-                    ? 'bg-indigo-100 text-indigo-700 font-medium border-l-4 border-l-indigo-600'
-                    : 'text-gray-700 hover:bg-gray-100']">
-                <iconify-icon icon="mdi:history" class="inline mr-2"></iconify-icon>
-                变更历史
-              </button>
-            </div>
-          </div>
-        </aside>
-
-        <!-- 右侧内容区域 -->
-        <div class="flex-1 bg-white rounded-xl shadow flex flex-col m-6 ml-3 overflow-hidden">
-          <!-- 权限申请审批 -->
-          <template v-if="managementTab === 'applications'">
-            <div class="border-b border-gray-200 p-6">
-              <h2 class="text-2xl font-bold text-gray-900">权限申请审批</h2>
-              <p class="text-gray-600 mt-1">审核所有操作者的权限申请</p>
-            </div>
-
-            <div class="flex-1 overflow-auto p-6">
-              <div class="space-y-4">
-                <div v-for="app in applications" :key="app.id"
-                  class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition cursor-pointer"
-                  @click="selectApplication(app)">
-                  <div class="flex items-start justify-between mb-3">
-                    <div class="flex-1">
-                      <h3 class="font-bold text-gray-900">{{ app.tableName }}</h3>
-                      <p class="text-sm text-gray-600 mt-1">申请人: {{ app.applicant }}</p>
-                    </div>
-                    <span :class="['px-3 py-1 rounded-full text-xs font-medium',
-                      app.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                      app.status === 'approved' ? 'bg-green-100 text-green-800' :
-                      'bg-red-100 text-red-800']">
-                      {{ app.status === 'pending' ? '待审批' : app.status === 'approved' ? '已批准' : '已拒绝' }}
-                    </span>
-                  </div>
-                  <p class="text-sm text-gray-700 mb-2">{{ app.reason }}</p>
-                  <p class="text-xs text-gray-500">{{ app.submitTime }}</p>
-                </div>
-              </div>
-            </div>
-          </template>
-
-          <!-- 编辑变更审核 -->
-          <template v-else-if="managementTab === 'tableEdit'">
-            <div class="border-b border-gray-200 p-6">
-              <h2 class="text-2xl font-bold text-gray-900">编辑变更审核</h2>
-              <p class="text-gray-600 mt-1">审核操作者对表格的编辑变更</p>
-            </div>
-            <div class="flex-1 overflow-auto p-6">
-              <div class="border border-gray-200 rounded-lg p-4">
-                <p class="text-gray-600 text-center py-12">编辑变更审核功能开发中...</p>
-              </div>
-            </div>
-          </template>
-
-          <!-- 变更历史 -->
-          <template v-else-if="managementTab === 'versions'">
-            <div class="border-b border-gray-200 p-6">
-              <h2 class="text-2xl font-bold text-gray-900">变更历史</h2>
-              <p class="text-gray-600 mt-1">查看所有表格的变更历史记录</p>
-            </div>
-            <div class="flex-1 overflow-auto p-6">
-              <div class="border border-gray-200 rounded-lg p-4">
-                <p class="text-gray-600 text-center py-12">变更历史功能开发中...</p>
-              </div>
-            </div>
-          </template>
-        </div>
-      </template>
-
       <!-- 权限设置标签页 -->
       <template v-if="currentTab === 'permissions'">
         <div class="w-1/3 bg-white rounded-xl shadow flex flex-col m-6 mr-3">
@@ -366,64 +261,71 @@
           <div class="flex-1 overflow-y-auto">
             <div class="space-y-2 p-3">
               <div v-for="project in projects" :key="project.id"
-                :class="['p-4 rounded-lg border-l-4 transition hover:shadow-md cursor-pointer',
+                   :class="['p-4 rounded-lg border-l-4 transition hover:shadow-md cursor-pointer',
                   selectedProjectId === project.id
                     ? 'border-l-indigo-600 bg-indigo-50 border border-indigo-200'
                     : 'border-l-gray-300 bg-white border border-gray-200 hover:border-gray-300']"
-                @click="selectedProjectId = project.id">
+                   @click="selectedProjectId = project.id">
                 <h3 class="font-medium text-gray-900">{{ project.name }}</h3>
                 <p class="text-xs text-gray-600 mt-1">{{ project.department }}</p>
               </div>
             </div>
           </div>
         </div>
-
         <div class="flex-1 bg-white rounded-xl shadow flex flex-col m-6 ml-3">
-          <div class="border-b border-gray-200 p-6 flex items-center justify-between">
-            <div>
-              <h2 class="text-2xl font-bold text-gray-900">项目权限设置</h2>
-            </div>
-            <!-- 通知气泡 -->
-            <div v-if="showPermissionBubble && pendingPermissionRequests > 0" class="relative">
-              <div class="absolute -top-2 -right-2 inline-flex items-center justify-center px-3 py-1.5 text-xs font-bold leading-none text-white bg-blue-600 rounded-full shadow-lg">
-                <iconify-icon icon="mdi:bell" class="mr-1"></iconify-icon>
-                有 {{ pendingPermissionRequests }} 个待审批的权限请求
+          <div v-if="selectedProject" class="h-full flex flex-col">
+            <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-6 py-4 flex items-center justify-between">
+              <div>
+                <h2 class="text-2xl font-bold">{{ selectedProject.name }}</h2>
+                <p class="text-indigo-100 text-sm mt-1">{{ selectedProject.department }}项目权限设置</p>
+              </div>
+              <div class="flex items-center space-x-2">
+                <button @click="importTableDataForProject(selectedProject.id)" class="text-white hover:bg-indigo-800 rounded-lg px-3 py-2 flex items-center space-x-1 transition">
+                  <iconify-icon icon="mdi:upload" class="text-xl"></iconify-icon>
+                  <span class="text-sm font-medium">导入数据</span>
+                </button>
+                <button @click="exportProjectData(selectedProject.id)" class="text-white hover:bg-indigo-800 rounded-lg px-3 py-2 flex items-center space-x-1 transition">
+                  <iconify-icon icon="mdi:download" class="text-xl"></iconify-icon>
+                  <span class="text-sm font-medium">导出数据</span>
+                </button>
+                <button @click="goToDataSyncForProject(selectedProject.id)" class="text-white hover:bg-indigo-800 rounded-lg px-3 py-2 flex items-center space-x-1 transition">
+                  <iconify-icon icon="mdi:cloud-sync" class="text-xl"></iconify-icon>
+                  <span class="text-sm font-medium">数据同步</span>
+                </button>
               </div>
             </div>
-          </div>
-          <div class="flex-1 overflow-auto p-6 space-y-6">
-            <div>
-              <h3 class="font-medium text-gray-900 mb-3">项目成员管理</h3>
-              <div class="bg-gray-50 rounded-lg p-4">
-                <div class="flex items-center justify-between mb-4">
-                  <p class="text-sm font-medium">成员列表</p>
-                  <button class="text-blue-600 text-sm font-medium">添加成员</button>
-                </div>
-                <div class="flex flex-wrap gap-3">
-                  <div v-for="member in projectMembers" :key="member.id" class="flex items-center bg-white px-3 py-2 rounded-lg border border-gray-200">
-                    <div class="bg-gray-200 border-2 border-dashed rounded-xl w-8 h-8 mr-2"></div>
-                    <span class="mr-2">{{ member.name }}</span>
-                    <span :class="['text-xs px-2 py-0.5 rounded', member.roleClass]">
-                      {{ member.role }}
-                    </span>
+            <div class="flex-1 overflow-auto p-6 space-y-6">
+              <div>
+                <h3 class="font-medium text-gray-900 mb-3">项目成员管理</h3>
+                <div class="bg-gray-50 rounded-lg p-4">
+                  <div class="flex items-center justify-between mb-4">
+                    <p class="text-sm font-medium">成员列表</p>
+                    <button class="text-blue-600 text-sm font-medium">添加成员</button>
+                  </div>
+                  <div class="flex flex-wrap gap-3">
+                    <div v-for="member in projectMembers" :key="member.id" class="flex items-center bg-white px-3 py-2 rounded-lg border border-gray-200">
+                      <div class="bg-gray-200 border-2 border-dashed rounded-xl w-8 h-8 mr-2"></div>
+                      <span class="mr-2">{{ member.name }}</span>
+                      <span :class="['text-xs px-2 py-0.5 rounded', member.roleClass]">
+                        {{ member.role }}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-
-            <div>
-              <h3 class="font-medium text-gray-900 mb-3">权限角色配置</h3>
-              <div class="overflow-x-auto">
-                <table class="w-full text-sm">
-                  <thead>
+              <div>
+                <h3 class="font-medium text-gray-900 mb-3">权限角色配置</h3>
+                <div class="overflow-x-auto">
+                  <table class="w-full text-sm">
+                    <thead>
                     <tr class="bg-gray-100 text-left text-gray-700">
                       <th class="px-4 py-3">功能权限</th>
                       <th class="px-4 py-3">管理员</th>
                       <th class="px-4 py-3">编辑者</th>
                       <th class="px-4 py-3">查看者</th>
                     </tr>
-                  </thead>
-                  <tbody>
+                    </thead>
+                    <tbody>
                     <tr v-for="perm in permissions" :key="perm.id" class="border-b border-gray-200 hover:bg-gray-50">
                       <td class="px-4 py-3">{{ perm.name }}</td>
                       <td class="px-4 py-3">
@@ -439,14 +341,21 @@
                         <iconify-icon v-else class="text-gray-300 text-xl" icon="mdi:close-circle"></iconify-icon>
                       </td>
                     </tr>
-                  </tbody>
-                </table>
+                    </tbody>
+                  </table>
+                </div>
               </div>
+            </div>
+          </div>
+          <div v-else class="flex items-center justify-center h-full">
+            <div class="text-center">
+              <iconify-icon icon="mdi:folder-account" class="text-6xl text-gray-300 mx-auto mb-4"></iconify-icon>
+              <p class="text-xl font-medium text-gray-900 mb-2">请选择一个项目</p>
+              <p class="text-gray-600">从左侧列表选择项目，设置权限</p>
             </div>
           </div>
         </div>
       </template>
-
       <!-- 权限申请审批标签页 -->
       <template v-if="currentTab === 'applications'">
         <div class="w-80 bg-white rounded-xl shadow flex flex-col m-6 mr-3">
@@ -457,11 +366,11 @@
           <div class="flex-1 overflow-y-auto">
             <div class="space-y-2 p-3">
               <div v-for="app in applications" :key="app.id"
-                :class="['p-3 rounded-lg border-l-4 transition hover:shadow-md cursor-pointer',
+                   :class="['p-3 rounded-lg border-l-4 transition hover:shadow-md cursor-pointer',
                   selectedApplication?.id === app.id
                     ? 'border-l-blue-600 bg-blue-50 border border-blue-200'
                     : 'border-l-gray-300 bg-white border border-gray-200 hover:border-gray-300']"
-                @click="selectedApplication = app">
+                   @click="selectedApplication = app">
                 <h3 class="font-medium text-gray-900 text-sm">{{ app.tableName }}</h3>
                 <p class="text-xs text-gray-600 mt-1">申请人: {{ app.applicant }}</p>
                 <div class="flex items-center justify-between mt-2">
@@ -477,7 +386,6 @@
             </div>
           </div>
         </div>
-
         <div class="flex-1 bg-white rounded-xl shadow flex flex-col m-6 ml-3">
           <div v-if="selectedApplication" class="h-full flex flex-col">
             <div class="border-b border-gray-200 p-6">
@@ -509,21 +417,20 @@
                 <h3 class="text-sm font-medium text-gray-500 mb-2">申请时间</h3>
                 <p class="text-gray-700">{{ selectedApplication.submitTime }}</p>
               </div>
-
               <div v-if="selectedApplication.status === 'pending'" class="pt-4 border-t border-gray-200">
                 <h3 class="text-sm font-medium text-gray-500 mb-3">审批操作</h3>
                 <textarea v-model="approvalComment"
-                  placeholder="请输入审批意见（至少20字）..."
-                  class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none h-24 mb-3"
+                          placeholder="请输入审批意见（至少20字）..."
+                          class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none h-24 mb-3"
                 ></textarea>
                 <p class="text-xs text-gray-500 mb-4">{{ approvalComment.length }}/200 字</p>
                 <div class="flex gap-3">
                   <button @click="rejectApplication"
-                    class="flex-1 px-4 py-3 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 font-medium transition">
+                          class="flex-1 px-4 py-3 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 font-medium transition">
                     拒绝
                   </button>
                   <button @click="approveApplication"
-                    class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition">
+                          class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition">
                     批准
                   </button>
                 </div>
@@ -542,7 +449,6 @@
           </div>
         </div>
       </template>
-
       <!-- 数据同步标签页（Pull Request风格） -->
       <template v-if="currentTab === 'dataSync'">
         <!-- 左侧：PR列表 -->
@@ -551,31 +457,30 @@
             <h2 class="text-lg font-bold text-gray-900">编辑请求</h2>
             <p class="text-xs text-gray-600 mt-1">共 {{ pullRequests.length }} 个请求</p>
           </div>
-
           <!-- 搜索和筛选 -->
           <div class="border-b border-gray-200 p-4 space-y-3">
             <div class="relative">
               <input v-model="prSearchQuery" type="text" placeholder="搜索PR..."
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm" />
+                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm" />
               <iconify-icon icon="mdi:magnify" class="absolute right-3 top-2.5 text-gray-500"></iconify-icon>
             </div>
             <div class="flex gap-2">
               <button @click="prStatusFilter = null"
-                :class="['px-3 py-1 rounded-full text-xs font-medium transition',
+                      :class="['px-3 py-1 rounded-full text-xs font-medium transition',
                   prStatusFilter === null
                     ? 'bg-indigo-600 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200']">
                 全部
               </button>
               <button @click="prStatusFilter = 'pending'"
-                :class="['px-3 py-1 rounded-full text-xs font-medium transition',
+                      :class="['px-3 py-1 rounded-full text-xs font-medium transition',
                   prStatusFilter === 'pending'
                     ? 'bg-yellow-600 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200']">
                 待审批
               </button>
               <button @click="prStatusFilter = 'merged'"
-                :class="['px-3 py-1 rounded-full text-xs font-medium transition',
+                      :class="['px-3 py-1 rounded-full text-xs font-medium transition',
                   prStatusFilter === 'merged'
                     ? 'bg-green-600 text-white'
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200']">
@@ -583,7 +488,6 @@
               </button>
             </div>
           </div>
-
           <!-- PR列表 -->
           <div class="flex-1 overflow-y-auto">
             <div class="space-y-2 p-3">
@@ -591,11 +495,11 @@
                 暂无编辑请求
               </div>
               <div v-for="pr in filteredPullRequests" :key="pr.id"
-                :class="['p-4 rounded-lg border-l-4 transition hover:shadow-md cursor-pointer',
+                   :class="['p-4 rounded-lg border-l-4 transition hover:shadow-md cursor-pointer',
                   selectedPRId === pr.id
                     ? 'border-l-indigo-600 bg-indigo-50 border border-indigo-200'
                     : 'border-l-gray-300 bg-white border border-gray-200 hover:border-gray-300']"
-                @click="selectedPRId = pr.id">
+                   @click="selectedPRId = pr.id">
                 <div class="flex items-start justify-between mb-2">
                   <h3 class="font-medium text-gray-900 text-sm">{{ pr.tableName }}</h3>
                   <span :class="['px-2 py-0.5 rounded text-xs font-medium',
@@ -614,7 +518,6 @@
             </div>
           </div>
         </div>
-
         <!-- 右侧：PR详情和diff -->
         <div class="flex-1 bg-white rounded-xl shadow flex flex-col m-6 ml-3">
           <div v-if="selectedPRId !== null && selectedPR" class="h-full flex flex-col">
@@ -647,7 +550,6 @@
                 </div>
               </div>
             </div>
-
             <!-- 内容区 -->
             <div class="flex-1 overflow-auto p-6">
               <div class="space-y-6">
@@ -658,25 +560,24 @@
                     <p class="text-gray-700 whitespace-pre-wrap">{{ selectedPR.description }}</p>
                   </div>
                 </div>
-
                 <!-- 变更详情 -->
                 <div>
                   <h3 class="text-lg font-bold text-gray-900 mb-3">变更详情</h3>
                   <div class="space-y-3">
                     <div v-for="(change, index) in selectedPR.changes" :key="index"
-                      class="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-2">
+                         class="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-2">
                       <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-3">
                           <span v-if="change.type === 'modify'"
-                            class="inline-block px-2 py-0.5 bg-blue-100 text-blue-800 text-xs font-medium rounded">
+                                class="inline-block px-2 py-0.5 bg-blue-100 text-blue-800 text-xs font-medium rounded">
                             修改
                           </span>
                           <span v-else-if="change.type === 'add'"
-                            class="inline-block px-2 py-0.5 bg-green-100 text-green-800 text-xs font-medium rounded">
+                                class="inline-block px-2 py-0.5 bg-green-100 text-green-800 text-xs font-medium rounded">
                             新增
                           </span>
                           <span v-else
-                            class="inline-block px-2 py-0.5 bg-red-100 text-red-800 text-xs font-medium rounded">
+                                class="inline-block px-2 py-0.5 bg-red-100 text-red-800 text-xs font-medium rounded">
                             删除
                           </span>
                           <span class="text-sm text-gray-600">
@@ -717,22 +618,20 @@
                 </div>
               </div>
             </div>
-
             <!-- 操作按钮 -->
             <div v-if="selectedPR.status === 'pending'" class="border-t border-gray-200 p-6 flex gap-3 bg-gray-50">
               <button @click="mergePullRequest"
-                class="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition flex items-center justify-center space-x-2">
+                      class="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition flex items-center justify-center space-x-2">
                 <iconify-icon icon="mdi:check" class="text-xl"></iconify-icon>
                 <span>合并</span>
               </button>
               <button @click="rejectPullRequest"
-                class="flex-1 px-4 py-3 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 font-medium transition flex items-center justify-center space-x-2">
+                      class="flex-1 px-4 py-3 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 font-medium transition flex items-center justify-center space-x-2">
                 <iconify-icon icon="mdi:close" class="text-xl"></iconify-icon>
                 <span>拒绝</span>
               </button>
             </div>
           </div>
-
           <!-- 空状态 -->
           <div v-else class="flex items-center justify-center h-full">
             <div class="text-center">
@@ -746,10 +645,8 @@
     </div>
   </div>
 </template>
-
 <script setup>
 import { ref, computed } from 'vue'
-
 const currentTab = ref('tableSpace')
 const managementTab = ref('applications')
 const searchQuery = ref('')
@@ -758,17 +655,14 @@ const selectedTableId = ref(1)
 const selectedProjectId = ref(1)
 const selectedApplication = ref(null)
 const approvalComment = ref('')
-
 // 数据同步相关状态
 const selectedPRId = ref(null)
 const prSearchQuery = ref('')
 const prStatusFilter = ref(null)
 const showTableMenu = ref(false)
-
 // 通知气泡状态
 const showPermissionBubble = ref(true)
 const showDataModifyBubble = ref(true)
-
 // 表格数据
 const tables = ref([
   {
@@ -835,7 +729,6 @@ const tables = ref([
     versionHistory: []
   }
 ])
-
 // 项目管理数据
 const projects = ref([
   { id: 1, name: 'I项目系统', department: '技术部' },
@@ -843,20 +736,17 @@ const projects = ref([
   { id: 3, name: '分贝通系统', department: '财务部' },
   { id: 4, name: '企业微信管理', department: '行政部' }
 ])
-
 const projectMembers = ref([
   { id: 1, name: '张工', role: '管理员', roleClass: 'bg-blue-100 text-blue-800' },
   { id: 2, name: '李技术', role: '编辑者', roleClass: 'bg-green-100 text-green-800' },
   { id: 3, name: '王经理', role: '编辑者', roleClass: 'bg-green-100 text-green-800' }
 ])
-
 const permissions = ref([
   { id: 1, name: '编辑项目信息', admin: true, editor: true, viewer: false },
   { id: 2, name: '变更流程', admin: true, editor: true, viewer: false },
   { id: 3, name: '审批申请', admin: true, editor: false, viewer: false },
   { id: 4, name: '删除项目', admin: true, editor: false, viewer: false }
 ])
-
 // 权限申请数据
 const applications = ref([
   {
@@ -884,7 +774,6 @@ const applications = ref([
     status: 'pending'
   }
 ])
-
 // Pull Request 数据（数据同步）
 const pullRequests = ref([
   {
@@ -988,76 +877,64 @@ const pullRequests = ref([
     ]
   }
 ])
-
 const adminTables = computed(() => {
   return tables.value
 })
-
 const filteredAdminTables = computed(() => {
   if (!tableSearchQuery.value) return adminTables.value
   return adminTables.value.filter(t =>
-    t.name.toLowerCase().includes(tableSearchQuery.value.toLowerCase()) ||
-    t.description.toLowerCase().includes(tableSearchQuery.value.toLowerCase())
+      t.name.toLowerCase().includes(tableSearchQuery.value.toLowerCase()) ||
+      t.description.toLowerCase().includes(tableSearchQuery.value.toLowerCase())
   )
 })
-
 const selectedTable = computed(() => {
   return tables.value.find(t => t.id === selectedTableId.value)
 })
-
+const selectedProject = computed(() => {
+  return projects.value.find(p => p.id === selectedProjectId.value)
+})
 const selectedPR = computed(() => {
   return pullRequests.value.find(pr => pr.id === selectedPRId.value)
 })
-
 const filteredPullRequests = computed(() => {
   let result = pullRequests.value
-  
   // 按搜索词过滤
   if (prSearchQuery.value) {
     const query = prSearchQuery.value.toLowerCase()
     result = result.filter(pr =>
-      pr.tableName.toLowerCase().includes(query) ||
-      pr.description.toLowerCase().includes(query) ||
-      pr.submitter.toLowerCase().includes(query)
+        pr.tableName.toLowerCase().includes(query) ||
+        pr.description.toLowerCase().includes(query) ||
+        pr.submitter.toLowerCase().includes(query)
     )
   }
-  
   // 按状态过滤
   if (prStatusFilter.value) {
     result = result.filter(pr => pr.status === prStatusFilter.value)
   }
-  
   return result
 })
-
 // 待处理权限请求
 const pendingPermissions = computed(() => {
   return applications.value.filter(app => app.status === 'pending')
 })
-
 const permissionRequestCount = computed(() => {
   return pendingPermissions.value.length
 })
-
 // 给模板使用的别名
 const pendingPermissionRequests = computed(() => {
   return pendingPermissions.value.length
 })
-
 // 待处理数据修改请求
 const pendingPRs = computed(() => {
   return pullRequests.value.filter(pr => pr.status === 'pending')
 })
-
 const pendingPRCount = computed(() => {
   return pendingPRs.value.length
 })
-
 // 给模板使用的别名
 const pendingDataChangeRequests = computed(() => {
   return pendingPRs.value.length
 })
-
 function getTableData(tableId) {
   const mockData = {
     1: [
@@ -1083,40 +960,100 @@ function getTableData(tableId) {
   }
   return mockData[tableId] || []
 }
-
 function exportTableData(tableId) {
   const table = tables.value.find(t => t.id === tableId)
   if (!table) return
-
   const data = getTableData(tableId)
   const csvContent = [
     table.allColumns.map(col => `"${col}"`).join(','),
     ...data.map(row =>
-      table.allColumns.map(col => {
-        const value = row[col] || ''
-        return `"${String(value).replace(/"/g, '""')}"`
-      }).join(',')
+        table.allColumns.map(col => {
+          const value = row[col] || ''
+          return `"${String(value).replace(/"/g, '""')}"`
+        }).join(',')
     )
   ].join('\n')
-
   const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' })
   const link = document.createElement('a')
   const url = URL.createObjectURL(blob)
-
   link.setAttribute('href', url)
   link.setAttribute('download', `${table.name}_${new Date().toISOString().split('T')[0]}.csv`)
   link.style.visibility = 'hidden'
-
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
+  alert(`已导出 "${table.name}" 数据`)
 }
-
+function exportProjectData(projectId) {
+  const project = projects.value.find(p => p.id === projectId)
+  if (!project) return
+  const csvContent = `项目导出\n项目名称: ${project.name}\n部门: ${project.department}\n导出时间: ${new Date().toLocaleString('zh-CN')}\n\n成员列表:\n姓名,角色\n${projectMembers.value.map(m => `${m.name},${m.role}`).join('\n')}`
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+  const link = document.createElement('a')
+  const url = URL.createObjectURL(blob)
+  link.setAttribute('href', url)
+  link.setAttribute('download', `${project.name}_权限设置_${new Date().toISOString().split('T')[0]}.csv`)
+  link.style.visibility = 'hidden'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  alert(`已导出 "${project.name}" 项目权限设置数据`)
+}
+function importTableData(tableId) {
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.accept = '.csv, text/csv'
+  input.onchange = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = function(event) {
+        try {
+          // 简化的CSV解析 (实际应用中应该使用更健壮的解析库)
+          const content = event.target.result
+          // 在这里处理CSV内容
+          alert(`已选择文件: ${file.name}\n文件大小: ${Math.round(file.size / 1024)}KB\n\n注意：演示版本，实际导入功能需要后端支持`)
+        } catch (error) {
+          alert('导入失败: ' + error.message)
+        }
+      }
+      reader.onerror = function() {
+        alert('读取文件失败')
+      }
+      reader.readAsText(file)
+    }
+  }
+  input.click()
+}
+function importTableDataForProject(projectId) {
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.accept = '.csv, text/csv'
+  input.onchange = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = function(event) {
+        try {
+          const content = event.target.result
+          // 在这里处理CSV内容
+          alert(`已选择文件: ${file.name}\n文件大小: ${Math.round(file.size / 1024)}KB\n\n将导入到项目: ${projects.value.find(p => p.id === projectId)?.name}`)
+        } catch (error) {
+          alert('导入失败: ' + error.message)
+        }
+      }
+      reader.onerror = function() {
+        alert('读取文件失败')
+      }
+      reader.readAsText(file)
+    }
+  }
+  input.click()
+}
 function selectApplication(app) {
   selectedApplication.value = app
   approvalComment.value = ''
 }
-
 function approveApplication() {
   if (!approvalComment.value || approvalComment.value.length < 20) {
     alert('请输入至少20个字的审批意见')
@@ -1128,7 +1065,6 @@ function approveApplication() {
     alert('已批准申请')
   }
 }
-
 function rejectApplication() {
   if (!approvalComment.value || approvalComment.value.length < 20) {
     alert('请输入至少20个字的审批意见')
@@ -1140,28 +1076,23 @@ function rejectApplication() {
     alert('已拒绝申请')
   }
 }
-
 // 表格编辑相关函数
 const isEditingTable = ref(false)
 const editingTableData = ref({})
 const changedRows = ref([])
-
 function startEditingTable() {
   isEditingTable.value = true
   editingTableData.value = {}
   changedRows.value = []
   showTableMenu.value = false
 }
-
 function toggleTableMenu() {
   showTableMenu.value = !showTableMenu.value
 }
-
 function showTableDetails() {
   alert('表格详情：' + selectedTable.value.name + '\n所有者：' + selectedTable.value.owner + '\n行数：' + selectedTable.value.rows + '\n列数：' + selectedTable.value.columns)
   showTableMenu.value = false
 }
-
 function deleteTable() {
   if (confirm('确定要删除表格 "' + selectedTable.value.name + '" 吗？此操作无法撤销。')) {
     const index = tables.value.findIndex(t => t.id === selectedTableId.value)
@@ -1173,12 +1104,15 @@ function deleteTable() {
   }
   showTableMenu.value = false
 }
-
 function goToDataSync() {
   currentTab.value = 'dataSync'
   selectedPRId.value = null
 }
-
+function goToDataSyncForProject(projectId) {
+  currentTab.value = 'dataSync'
+  selectedPRId.value = null
+  // 可以添加额外逻辑，筛选出与该项目相关的pull requests
+}
 // Pull Request 相关函数
 function mergePullRequest() {
   if (selectedPR.value) {
@@ -1187,7 +1121,6 @@ function mergePullRequest() {
     selectedPRId.value = null
   }
 }
-
 function rejectPullRequest() {
   if (selectedPR.value) {
     selectedPR.value.status = 'rejected'
@@ -1195,7 +1128,6 @@ function rejectPullRequest() {
     selectedPRId.value = null
   }
 }
-
 // 工具函数
 function formatDate(dateString) {
   const date = new Date(dateString)
@@ -1204,20 +1136,16 @@ function formatDate(dateString) {
   const diffMins = Math.floor(diffMs / 60000)
   const diffHours = Math.floor(diffMs / 3600000)
   const diffDays = Math.floor(diffMs / 86400000)
-  
   if (diffMins < 60) return diffMins + '分钟前'
   if (diffHours < 24) return diffHours + '小时前'
   if (diffDays < 7) return diffDays + '天前'
-  
   return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
-
 function submitTableChangesForReview() {
   if (changedRows.value.length === 0) {
     alert('没有任何修改')
     return
   }
-  
   const changesSummary = changedRows.value.map(rowIdx => {
     const changes = []
     for (let col of selectedTable.value.allColumns) {
@@ -1233,13 +1161,10 @@ function submitTableChangesForReview() {
     }
     return `第 ${rowIdx + 1} 行: ${changes.join(', ')}`
   }).join('\n')
-  
-  const summary = `已修改 ${changedRows.value.length} 行\n\n${changesSummary}`
-  
+  const summary = `已修改 ${changedRows.value.length} 行\n${changesSummary}`
   // 在这里可以显示一个模态框来选择审核人
   // 现在先模拟提交
-  alert('变更内容:\n' + summary + '\n\n已提交审核请求')
-  
+  alert('变更内容:\n' + summary + '\n已提交审核请求')
   // 添加到pull requests
   const newPR = {
     id: pullRequests.value.length + 1,
@@ -1258,13 +1183,11 @@ function submitTableChangesForReview() {
     }))
   }
   pullRequests.value.push(newPR)
-  
   // 重置编辑状态
   isEditingTable.value = false
   editingTableData.value = {}
   changedRows.value = []
 }
-
 function cancelTableEdit() {
   if (changedRows.value.length > 0 && !confirm('确定要放弃所有修改吗？')) {
     return
@@ -1274,3 +1197,12 @@ function cancelTableEdit() {
   changedRows.value = []
 }
 </script>
+<style scoped>
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+</style>

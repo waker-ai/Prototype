@@ -16,7 +16,7 @@
         </div>
         <button @click="refreshData"
                 :class="['px-4 py-2 rounded-lg flex items-center font-medium transition',
-            isSyncing 
+            isSyncing
               ? 'bg-gray-400 text-white cursor-not-allowed'
               : 'bg-indigo-600 text-white hover:bg-indigo-700']"
                 :disabled="isSyncing"
@@ -47,6 +47,7 @@
         </router-link>
       </div>
     </header>
+
     <!-- 页面选项卡 -->
     <div class="bg-white border-b border-gray-200 px-8">
       <div class="flex items-center space-x-1">
@@ -80,6 +81,7 @@
         </button>
       </div>
     </div>
+
     <!-- 主容器 -->
     <div class="flex-1 overflow-hidden flex">
       <!-- 表格空间页面 -->
@@ -245,6 +247,7 @@
           </div>
         </div>
       </template>
+
       <!-- 申请权限页面 -->
       <template v-else-if="currentPage === 'apply'">
         <!-- 左侧：导入和申请历史 -->
@@ -455,6 +458,7 @@
           </div>
         </div>
       </template>
+
       <!-- 数据同步页面 (Pull Request风格) -->
       <template v-if="currentPage === 'dataSync'">
         <!-- 左侧：PR列表 -->
@@ -575,6 +579,27 @@
                     <p class="text-gray-700 whitespace-pre-wrap">{{ selectedPR.description }}</p>
                   </div>
                 </div>
+                <!-- 证明材料 (新增) -->
+                <div v-if="selectedPR.proofFiles && selectedPR.proofFiles.length > 0">
+                  <h3 class="text-lg font-bold text-gray-900 mb-3">证明材料</h3>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div v-for="(file, index) in selectedPR.proofFiles" :key="index"
+                         class="flex items-center justify-between p-3 bg-indigo-50 border border-indigo-100 rounded-lg">
+                      <div class="flex items-center space-x-3 overflow-hidden">
+                        <div class="bg-indigo-200 rounded p-2 text-indigo-700 flex-shrink-0">
+                          <iconify-icon icon="mdi:file-document-outline" class="text-xl"></iconify-icon>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <p class="text-sm font-medium text-gray-900 truncate" :title="file.name">{{ file.name }}</p>
+                          <p class="text-xs text-gray-500">{{ file.size }}</p>
+                        </div>
+                      </div>
+                      <button class="text-indigo-600 hover:text-indigo-800 p-2 rounded-full hover:bg-indigo-100 transition" title="下载文件">
+                        <iconify-icon icon="mdi:download" class="text-lg"></iconify-icon>
+                      </button>
+                    </div>
+                  </div>
+                </div>
                 <!-- 变更详情 -->
                 <div>
                   <h3 class="text-lg font-bold text-gray-900 mb-3">变更详情</h3>
@@ -633,18 +658,12 @@
                 </div>
               </div>
             </div>
-            <!-- 底部操作按钮 -->
-            <div v-if="selectedPR.status === 'pending'" class="border-t border-gray-200 p-4 bg-gray-50 flex gap-3">
-              <button @click="mergePullRequest"
-                      class="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition flex items-center justify-center space-x-2">
-                <iconify-icon icon="mdi:check" class="text-xl"></iconify-icon>
-                <span>合并</span>
-              </button>
-              <button @click="rejectPullRequest"
-                      class="flex-1 px-4 py-3 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 font-medium transition flex items-center justify-center space-x-2">
-                <iconify-icon icon="mdi:close" class="text-xl"></iconify-icon>
-                <span>拒绝</span>
-              </button>
+            <!-- 底部状态提示 (无操作按钮) -->
+            <div v-if="selectedPR.status === 'pending'" class="border-t border-gray-200 p-4 bg-gray-50 text-center">
+              <p class="text-sm text-gray-500 flex items-center justify-center">
+                <iconify-icon icon="mdi:clock-outline" class="mr-2"></iconify-icon>
+                等待管理员审核中...
+              </p>
             </div>
           </div>
           <!-- 未选择PR的提示 -->
@@ -658,68 +677,8 @@
         </div>
       </template>
     </div>
-    <!-- 同步详情弹窗 -->
-    <div v-if="showSyncModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-      <div class="bg-white rounded-2xl shadow-2xl w-11/12 max-w-3xl max-h-[80vh] flex flex-col">
-        <!-- 头部 -->
-        <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-8 py-6 flex items-center justify-between rounded-t-2xl">
-          <h2 class="text-2xl font-bold">同步详情</h2>
-          <button @click="showSyncModal = false" class="text-white hover:bg-indigo-800 rounded-full p-2">
-            <iconify-icon icon="mdi:close" class="text-2xl"></iconify-icon>
-          </button>
-        </div>
-        <!-- 搜索 -->
-        <div class="border-b border-gray-200 p-6">
-          <div class="relative">
-            <input v-model="syncSearchQuery" type="text" placeholder="搜索表格..."
-                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" />
-            <iconify-icon icon="mdi:magnify" class="absolute right-3 top-2.5 text-gray-500"></iconify-icon>
-          </div>
-        </div>
-        <!-- 内容 -->
-        <div class="flex-1 overflow-y-auto p-6">
-          <!-- 已获得权限 -->
-          <div class="mb-8">
-            <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
-              <iconify-icon icon="mdi:check-circle" class="text-green-600 mr-2 text-xl"></iconify-icon>
-              已获得权限
-            </h3>
-            <div class="space-y-3">
-              <div v-for="perm in filteredPermissions" :key="perm.id"
-                   class="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg">
-                <div>
-                  <p class="font-medium text-gray-900">{{ perm.table }}</p>
-                  <p class="text-sm text-gray-600 mt-1">{{ perm.permission }}</p>
-                </div>
-                <span class="px-3 py-1 bg-green-200 text-green-800 rounded-full text-sm font-medium">
-                  {{ perm.level }}
-                </span>
-              </div>
-            </div>
-          </div>
-          <!-- 已合并的提交 -->
-          <div>
-            <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
-              <iconify-icon icon="mdi:git-merge" class="text-blue-600 mr-2 text-xl"></iconify-icon>
-              已合并的提交
-            </h3>
-            <div class="space-y-3">
-              <div v-for="pr in filteredPRs" :key="pr.id"
-                   class="flex items-center justify-between p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                <div>
-                  <p class="font-medium text-gray-900">{{ pr.title }}</p>
-                  <p class="text-sm text-gray-600 mt-1">{{ pr.description }}</p>
-                  <p class="text-xs text-gray-500 mt-2">by {{ pr.author }} • {{ pr.time }}</p>
-                </div>
-                <span class="px-3 py-1 bg-blue-200 text-blue-800 rounded-full text-sm font-medium">
-                  已合并
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+
+    <!-- 弹窗组件区 -->
     <!-- 表格选择弹窗（用于申请权限） -->
     <div v-if="showTableSelectModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
       <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col">
@@ -761,6 +720,7 @@
         </div>
       </div>
     </div>
+
     <!-- 权限申请弹窗 -->
     <div v-if="showPermissionModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
       <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] flex flex-col overflow-hidden">
@@ -856,11 +816,13 @@
         </div>
       </div>
     </div>
+
     <!-- 表格详情弹窗 -->
     <TableDetail v-if="showTableDetailModal"
                  :tableId="detailTableId"
                  :tableData="detailTable"
                  @close="showTableDetailModal = false" />
+
     <!-- 表格被修改通知 (右上角) -->
     <div v-if="showUpdateNotification" class="fixed top-24 right-4 w-96 bg-white rounded-lg shadow-lg border-l-4 border-l-orange-500 p-4 z-50 animate-slide-in">
       <div class="flex items-start space-x-4">
@@ -880,6 +842,7 @@
         </button>
       </div>
     </div>
+
     <!-- 获得权限通知 (右上角) -->
     <div v-if="showPermissionNotification" class="fixed top-24 right-4 w-96 bg-white rounded-lg shadow-lg border-l-4 border-l-green-500 p-4 z-50 animate-slide-in">
       <div class="flex items-start space-x-4">
@@ -900,6 +863,7 @@
         </button>
       </div>
     </div>
+
     <!-- 表格编辑提交审核弹窗 -->
     <div v-if="showSubmitReviewModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
       <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[80vh] flex flex-col overflow-hidden">
@@ -947,6 +911,41 @@
               ></textarea>
               <p v-if="!tableEditReviewRequest.description" class="text-xs text-red-500 mt-1">请输入修改说明</p>
             </div>
+            <!-- 证明材料上传 (可选) -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">证明材料 <span class="text-gray-500 font-normal">(可选)</span></label>
+              <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-indigo-400 transition">
+                <input
+                    type="file"
+                    @change="handleFileUpload"
+                    class="hidden"
+                    id="proofFileInput"
+                    multiple
+                />
+                <label for="proofFileInput" class="cursor-pointer">
+                  <div class="mx-auto mb-3 w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
+                    <iconify-icon icon="mdi:paperclip" class="text-indigo-600 text-2xl"></iconify-icon>
+                  </div>
+                  <p class="text-sm font-medium text-gray-900 mb-1">点击上传证明文件</p>
+                  <p class="text-xs text-gray-500">支持PDF、图片、Word文档等格式，最多5个文件</p>
+                </label>
+              </div>
+
+              <!-- 已上传文件列表 -->
+              <div v-if="proofFiles.length > 0" class="mt-4 space-y-2">
+                <p class="text-sm font-medium text-gray-700 mb-1">已上传文件：</p>
+                <div v-for="(file, index) in proofFiles" :key="index"
+                     class="flex items-center justify-between p-2 bg-gray-50 rounded border border-gray-200">
+                  <div class="flex items-center space-x-2">
+                    <iconify-icon icon="mdi:file-document" class="text-gray-500"></iconify-icon>
+                    <span class="text-sm text-gray-700 truncate max-w-xs">{{ file.name }}</span>
+                  </div>
+                  <button @click="removeFile(index)" class="text-red-500 hover:text-red-700">
+                    <iconify-icon icon="mdi:close" class="text-lg"></iconify-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
             <!-- 选择审核人 -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">选择审核人 <span class="text-red-500">*</span></label>
@@ -984,7 +983,7 @@
         </div>
         <!-- 底部按钮 -->
         <div class="border-t border-gray-200 px-8 py-4 flex items-center justify-end space-x-3 bg-gray-50">
-          <button @click="showSubmitReviewModal = false"
+          <button @click="closeSubmitReviewModal"
                   class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 font-medium transition">
             取消
           </button>
@@ -1000,6 +999,7 @@
         </div>
       </div>
     </div>
+
     <!-- 通知消息 -->
     <div v-if="notifications.length > 0" class="fixed bottom-4 right-4 space-y-2 z-40">
       <transition-group name="slide-fade">
@@ -1019,9 +1019,11 @@
     </div>
   </div>
 </template>
+
 <script setup>
 import { ref, computed } from 'vue'
 import TableDetail from './TableDetail.vue'
+
 const currentPage = ref('workspace')
 const searchQuery = ref('')
 const syncSearchQuery = ref('')
@@ -1034,7 +1036,6 @@ const detailTableId = ref(null)
 const applyPageMode = ref('list')
 const isSyncing = ref(false)
 const notifications = ref([])
-const showSyncModal = ref(false)
 const showPermissionModal = ref(false)
 const showTableSelectModal = ref(false)
 const showTableDetailModal = ref(false)
@@ -1049,6 +1050,8 @@ const tableEditReviewRequest = ref({
   reviewerId: null,
   changesSummary: ''
 })
+const proofFiles = ref([])
+
 // 数据同步相关状态
 const selectedPRId = ref(null)
 const prSearchQuery = ref('')
@@ -1065,6 +1068,7 @@ const permissionRequest = ref({
   reviewerId: null,
   selectedColumns: []
 })
+
 const tables = ref([
   {
     id: 1,
@@ -1081,11 +1085,7 @@ const tables = ref([
     ],
     myAccessLevel: 'edit',
     allColumns: ['项目ID', '项目名称', '负责人', '开始时间', '预期完成时间', '状态', '预算', '实际支出'],
-    versionHistory: [
-      { message: '添加预算审批字段', type: 'add', author: '张工', timestamp: '2025-12-08 14:30', details: '新增预算审批状态字段以支持多级审批流程' },
-      { message: '修改项目状态枚举', type: 'update', author: '李技术', timestamp: '2025-12-07 10:15', details: '将项目状态从简单三态改为五态管理' },
-      { message: '初始化表结构', type: 'add', author: '王经理', timestamp: '2025-12-01 09:00', details: '创建项目信息表基础结构' }
-    ]
+    versionHistory: []
   },
   {
     id: 2,
@@ -1101,10 +1101,7 @@ const tables = ref([
     ],
     myAccessLevel: 'view',
     allColumns: ['员工ID', '员工名称', '部门', '月份', '绩效评分', '备注'],
-    versionHistory: [
-      { message: '新增部门排名字段', type: 'add', author: '王经理', timestamp: '2025-12-06 16:45', details: '用于部门内绩效对比' },
-      { message: '初始化表结构', type: 'add', author: '李技术', timestamp: '2025-11-20 08:30', details: '创建员工绩效评分表' }
-    ]
+    versionHistory: []
   },
   {
     id: 3,
@@ -1138,13 +1135,11 @@ const tables = ref([
     ],
     myAccessLevel: 'edit',
     allColumns: ['客户ID', '客户名称', '行业', '联系电话', '地址', '合作状态', '合同金额', '业务负责人', '最后联系时间'],
-    versionHistory: [
-      { message: '更新客户分类方案', type: 'update', author: '销售部', timestamp: '2025-12-05 13:20', details: '根据合作规模重新分类客户等级' },
-      { message: '初始化客户数据库', type: 'add', author: '李技术', timestamp: '2025-11-01 10:00', details: '导入企业ERP系统的客户信息' }
-    ]
+    versionHistory: []
   }
 ])
-// Pull Request 数据（数据同步）
+
+// Pull Request 数据（数据同步 - 包含冲突测试数据 ID:5）
 const pullRequests = ref([
   {
     id: 1,
@@ -1154,6 +1149,10 @@ const pullRequests = ref([
     submitter: '张工',
     submitTime: '2025-12-08 10:30',
     status: 'pending',
+    proofFiles: [
+      { name: '项目预算审批单.pdf', size: '2.5 MB' },
+      { name: '2025年度支出计划.xlsx', size: '1.2 MB' }
+    ],
     changes: [
       {
         type: 'modify',
@@ -1179,6 +1178,7 @@ const pullRequests = ref([
     submitter: '李技术',
     submitTime: '2025-12-07 15:45',
     status: 'merged',
+    proofFiles: [],
     changes: [
       {
         type: 'modify',
@@ -1204,6 +1204,9 @@ const pullRequests = ref([
     submitter: '王经理',
     submitTime: '2025-12-06 14:20',
     status: 'pending',
+    proofFiles: [
+      { name: '绩效复核报告.docx', size: '850 KB' }
+    ],
     changes: [
       {
         type: 'modify',
@@ -1229,6 +1232,7 @@ const pullRequests = ref([
     submitter: '郑总',
     submitTime: '2025-12-05 11:00',
     status: 'merged',
+    proofFiles: [],
     changes: [
       {
         type: 'modify',
@@ -1248,34 +1252,25 @@ const pullRequests = ref([
   },
   {
     id: 5,
-    tableId: 4,
-    tableName: '客户管理表',
-    description: '新增阿里巴巴合作项目\n- 合同金额：2000000\n- 业务负责人：李销售',
-    submitter: '陈经理',
-    submitTime: '2025-12-04 09:15',
-    status: 'rejected',
+    tableId: 1,
+    tableName: '项目信息表',
+    description: '冲突测试数据：尝试同时修改P001的预算\n- 预算调整为600000',
+    submitter: '测试员小刘',
+    submitTime: '2025-12-08 11:00',
+    status: 'pending',
+    proofFiles: [],
     changes: [
       {
-        type: 'add',
-        rowIdx: 3,
-        column: '客户ID',
-        newValue: 'C004'
-      },
-      {
-        type: 'add',
-        rowIdx: 3,
-        column: '客户名称',
-        newValue: '阿里巴巴'
-      },
-      {
-        type: 'add',
-        rowIdx: 3,
-        column: '合同金额',
-        newValue: '2000000'
+        type: 'modify',
+        rowIdx: 0,
+        column: '预算',
+        oldValue: '500000',
+        newValue: '600000'
       }
     ]
   }
 ])
+
 const selectedTable = computed(() => tables.value.find(t => t.id === selectedTableId.value))
 const requestingTableName = computed(() => {
   const table = tables.value.find(t => t.id === requestingTableId.value)
@@ -1294,30 +1289,7 @@ const filteredTables = computed(() => {
       t.description.toLowerCase().includes(searchQuery.value.toLowerCase())
   )
 })
-// 同步弹窗中的权限数据
-const syncPermissions = ref([
-  { id: 1, table: '项目信息表', permission: '获得编辑权限', level: '编辑' },
-  { id: 2, table: '员工绩效表', permission: '获得查看权限', level: '只读' },
-  { id: 3, table: '客户管理表', permission: '获得编辑权限', level: '编辑' }
-])
-// 同步弹窗中的PR数据
-const syncPRs = ref([
-  { id: 1, title: '项目信息表 - 添加预算审批字段', description: '新增预算审批状态以支持多级审批', author: '张工', time: '2025-12-08 14:30' },
-  { id: 2, title: '员工绩效表 - 新增部门排名', description: '用于部门内绩效对比', author: '王经理', time: '2025-12-06 16:45' },
-  { id: 3, title: '客户管理表 - 更新客户分类', description: '根据合作规模重新分类', author: '销售部', time: '2025-12-05 13:20' }
-])
-const filteredPermissions = computed(() => {
-  if (!syncSearchQuery.value) return syncPermissions.value
-  return syncPermissions.value.filter(p =>
-      p.table.toLowerCase().includes(syncSearchQuery.value.toLowerCase())
-  )
-})
-const filteredPRs = computed(() => {
-  if (!syncSearchQuery.value) return syncPRs.value
-  return syncPRs.value.filter(pr =>
-      pr.title.toLowerCase().includes(syncSearchQuery.value.toLowerCase())
-  )
-})
+
 const filteredSelectTables = computed(() => {
   // 只显示无权限或待申请的表格
   const noAccessTables = tables.value.filter(t => !t.myAccessLevel)
@@ -1421,11 +1393,9 @@ const detailTable = computed(() => tables.value.find(t => t.id === detailTableId
 const pendingPRs = computed(() => {
   return pullRequests.value.filter(pr => pr.status === 'pending')
 })
-
 const pendingDataChangeRequests = computed(() => {
   return pendingPRs.value.length
 })
-
 const filteredPullRequests = computed(() => {
   let result = pullRequests.value
   // 按搜索词过滤
@@ -1443,7 +1413,6 @@ const filteredPullRequests = computed(() => {
   }
   return result
 })
-
 const selectedPR = computed(() => {
   return pullRequests.value.find(pr => pr.id === selectedPRId.value)
 })
@@ -1467,15 +1436,7 @@ function selectTable(tableId) {
 function getTableData(tableId) {
   return tableData[tableId] || []
 }
-function openSyncModal() {
-  showSyncModal.value = true
-  isSyncing.value = true
-  setTimeout(() => {
-    isSyncing.value = false
-    addNotification('权限审核成功', 'success')
-    addNotification('数据同步完成', 'success')
-  }, 2000)
-}
+
 function openPermissionRequest(tableId) {
   // 打开表格选择列表而不是直接打开申请表单
   tableSelectSearchQuery.value = ''
@@ -1716,7 +1677,10 @@ function completeEditingCell(rowIdx, col) {
   if (newValue === oldValue) {
     delete editingTableData.value[key]
     // 检查该行是否还有其他改动
-    const hasOtherChanges = Object.keys(editingTableData.value).some(k => k.startsWith(`${rowIdx}-`) && editingTableData.value[k] !== getTableData(selectedTableId.value)[rowIdx][k.split('-')[1]])
+    const hasOtherChanges = Object.keys(editingTableData.value).some(k =>
+        k.startsWith(`${rowIdx}-`) &&
+        editingTableData.value[k] !== getTableData(selectedTableId.value)[rowIdx][k.split('-')[1]]
+    )
     if (!hasOtherChanges) {
       changedRows.value = changedRows.value.filter(r => r !== rowIdx)
     }
@@ -1748,6 +1712,12 @@ function submitTableChangesForReview() {
     changesSummary: ''
   }
   showSubmitReviewModal.value = true
+  // 重置文件列表
+  proofFiles.value = []
+}
+function closeSubmitReviewModal() {
+  showSubmitReviewModal.value = false
+  proofFiles.value = [] // 重置文件列表
 }
 function submitReviewRequest() {
   if (!tableEditReviewRequest.value.description) {
@@ -1764,24 +1734,58 @@ function submitReviewRequest() {
     const [rowIdx, col] = key.split('-')
     tableData[parseInt(rowIdx)][col] = newValue
   }
-  // 创建修改历史记录（可选）
+  // 创建修改历史记录
   const now = new Date()
   const timestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+
+  // 添加证明材料信息到详情
+  let details = `修改了 ${changedRows.value.length} 行数据，已提交给 ${tableEditReviewRequest.value.reviewerId} 审核`
+  if (proofFiles.value.length > 0) {
+    details += `，附带 ${proofFiles.value.length} 个证明文件`
+  }
+
   // 这里可以添加到表格的版本历史
   selectedTable.value.versionHistory.unshift({
     message: tableEditReviewRequest.value.description,
     type: 'update',
     author: '操作者',
     timestamp: timestamp,
-    details: `修改了 ${changedRows.value.length} 行数据，已提交给 ${tableEditReviewRequest.value.reviewerId} 审核`
+    details: details,
+    proofFiles: proofFiles.value.map(file => ({ name: file.name, size: file.size, type: file.type }))
   })
+
   addNotification(`已提交审核，共修改 ${changedRows.value.length} 行数据`, 'success')
+
   // 关闭编辑模式
   isEditingTable.value = false
   changedRows.value = []
   editingTableData.value = {}
   showSubmitReviewModal.value = false
+  proofFiles.value = [] // 重置文件列表
 }
+function handleFileUpload(event) {
+  const files = Array.from(event.target.files)
+
+  // 限制最多5个文件
+  if (proofFiles.value.length + files.length > 5) {
+    addNotification('最多只能上传5个文件', 'error')
+    event.target.value = ''
+    return
+  }
+
+  // 添加新文件
+  proofFiles.value = [...proofFiles.value, ...files]
+  event.target.value = ''
+  addNotification(`已添加 ${files.length} 个文件`, 'success')
+}
+
+// 移除文件
+function removeFile(index) {
+  const removedFile = proofFiles.value[index]
+  proofFiles.value.splice(index, 1)
+  addNotification(`已移除文件: ${removedFile.name}`, 'info')
+}
+
 function addNotification(message, type = 'info') {
   const id = Date.now()
   notifications.value.push({ id, message, type })
@@ -1789,22 +1793,6 @@ function addNotification(message, type = 'info') {
   setTimeout(() => {
     notifications.value = notifications.value.filter(n => n.id !== id)
   }, 3000)
-}
-// 数据同步相关函数
-function mergePullRequest() {
-  if (selectedPR.value) {
-    selectedPR.value.status = 'merged'
-    addNotification('编辑请求已合并，表格数据已更新', 'success')
-    selectedPRId.value = null
-  }
-}
-
-function rejectPullRequest() {
-  if (selectedPR.value) {
-    selectedPR.value.status = 'rejected'
-    addNotification('编辑请求已拒绝', 'info')
-    selectedPRId.value = null
-  }
 }
 
 // 工具函数

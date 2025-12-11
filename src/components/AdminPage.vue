@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-gray-50 min-h-screen font-sans flex flex-col">
+  <div class="bg-gray-50 min-h-screen font-sans flex flex-col relative">
     <!-- 顶部导航 -->
     <header class="sticky top-0 z-10 bg-white shadow-sm h-20 flex items-center px-8">
       <div class="flex items-center space-x-3">
@@ -560,6 +560,27 @@
                     <p class="text-gray-700 whitespace-pre-wrap">{{ selectedPR.description }}</p>
                   </div>
                 </div>
+                <!-- 证明材料 (新增) -->
+                <div v-if="selectedPR.proofFiles && selectedPR.proofFiles.length > 0">
+                  <h3 class="text-lg font-bold text-gray-900 mb-3">证明材料</h3>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div v-for="(file, index) in selectedPR.proofFiles" :key="index"
+                         class="flex items-center justify-between p-3 bg-indigo-50 border border-indigo-100 rounded-lg">
+                      <div class="flex items-center space-x-3 overflow-hidden">
+                        <div class="bg-indigo-200 rounded p-2 text-indigo-700 flex-shrink-0">
+                          <iconify-icon icon="mdi:file-document-outline" class="text-xl"></iconify-icon>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <p class="text-sm font-medium text-gray-900 truncate" :title="file.name">{{ file.name }}</p>
+                          <p class="text-xs text-gray-500">{{ file.size }}</p>
+                        </div>
+                      </div>
+                      <button class="text-indigo-600 hover:text-indigo-800 p-2 rounded-full hover:bg-indigo-100 transition" title="下载文件">
+                        <iconify-icon icon="mdi:download" class="text-lg"></iconify-icon>
+                      </button>
+                    </div>
+                  </div>
+                </div>
                 <!-- 变更详情 -->
                 <div>
                   <h3 class="text-lg font-bold text-gray-900 mb-3">变更详情</h3>
@@ -643,10 +664,108 @@
         </div>
       </template>
     </div>
+
+    <!-- 冲突检测模态框 -->
+    <div v-if="showConflictModal" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50 backdrop-blur-sm">
+      <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh]">
+        <!-- 头部 -->
+        <div class="bg-orange-50 px-6 py-4 border-b border-orange-100 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="p-2 bg-orange-100 rounded-full text-orange-600">
+              <iconify-icon icon="mdi:alert-decagram" class="text-2xl"></iconify-icon>
+            </div>
+            <div>
+              <h3 class="text-lg font-bold text-gray-900">检测到编辑冲突</h3>
+              <p class="text-sm text-orange-800">当前请求修改的单元格已被其他待审核请求修改</p>
+            </div>
+          </div>
+          <button @click="closeConflictModal" class="text-gray-400 hover:text-gray-600">
+            <iconify-icon icon="mdi:close" class="text-2xl"></iconify-icon>
+          </button>
+        </div>
+
+        <!-- 冲突对比区域 -->
+        <div class="flex-1 overflow-auto p-6 bg-gray-50">
+          <div class="grid grid-cols-2 gap-6">
+            <!-- 左侧：当前请求 -->
+            <div class="bg-white border-2 border-indigo-500 rounded-xl overflow-hidden shadow-sm flex flex-col">
+              <div class="bg-indigo-50 px-4 py-3 border-b border-indigo-100 flex justify-between items-center">
+                <span class="font-bold text-indigo-900">当前正在审核的请求</span>
+                <span class="text-xs bg-indigo-200 text-indigo-800 px-2 py-1 rounded">#{{ selectedPR?.id }}</span>
+              </div>
+              <div class="p-4 flex-1">
+                <p class="text-sm text-gray-500 mb-2">提交人: <span class="text-gray-900 font-medium">{{ selectedPR?.submitter }}</span></p>
+                <div class="space-y-3">
+                  <div v-for="(change, idx) in currentConflictChanges" :key="'curr-'+idx" class="bg-indigo-50 border border-indigo-100 p-3 rounded text-sm">
+                    <div class="flex justify-between mb-1">
+                      <span class="font-bold text-gray-700">{{ change.column }}</span>
+                      <span class="text-xs text-gray-500">第 {{ change.rowIdx + 1 }} 行</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <span class="line-through text-gray-400">{{ change.oldValue }}</span>
+                      <iconify-icon icon="mdi:arrow-right" class="text-gray-400"></iconify-icon>
+                      <span class="font-bold text-indigo-700">{{ change.newValue }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="bg-gray-50 p-4 border-t border-gray-100 mt-auto text-center">
+                <p class="text-xs text-gray-500 mb-2">如果不处理冲突，直接合并：</p>
+                <button @click="resolveConflict('merge_current')" class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition shadow-sm">
+                  合并此请求 (自动拒绝冲突方)
+                </button>
+              </div>
+            </div>
+
+            <!-- 右侧：冲突请求 -->
+            <div class="bg-white border-2 border-orange-400 rounded-xl overflow-hidden shadow-sm flex flex-col">
+              <div class="bg-orange-50 px-4 py-3 border-b border-orange-100 flex justify-between items-center">
+                <span class="font-bold text-orange-900">发现冲突的请求</span>
+                <span class="text-xs bg-orange-200 text-orange-800 px-2 py-1 rounded">#{{ conflictPrData?.id }}</span>
+              </div>
+              <div class="p-4 flex-1">
+                <p class="text-sm text-gray-500 mb-2">提交人: <span class="text-gray-900 font-medium">{{ conflictPrData?.submitter }}</span></p>
+                <div class="space-y-3">
+                  <div v-for="(change, idx) in conflictPrChanges" :key="'conf-'+idx" class="bg-orange-50 border border-orange-100 p-3 rounded text-sm">
+                    <div class="flex justify-between mb-1">
+                      <span class="font-bold text-gray-700">{{ change.column }}</span>
+                      <span class="text-xs text-gray-500">第 {{ change.rowIdx + 1 }} 行</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <span class="line-through text-gray-400">{{ change.oldValue }}</span>
+                      <iconify-icon icon="mdi:arrow-right" class="text-gray-400"></iconify-icon>
+                      <span class="font-bold text-orange-700">{{ change.newValue }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="bg-gray-50 p-4 border-t border-gray-100 mt-auto text-center">
+                <p class="text-xs text-gray-500 mb-2">认为冲突方的修改更准确：</p>
+                <button @click="resolveConflict('reject_current')" class="w-full py-2 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg font-medium transition">
+                  拒绝当前请求 (保留冲突方待审)
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 底部通用操作 -->
+        <div class="bg-gray-100 px-6 py-4 flex justify-between items-center border-t border-gray-200">
+          <span class="text-sm text-gray-500">提示：如果两个请求都不合理，可以选择全部拒绝。</span>
+          <button @click="resolveConflict('reject_all')" class="px-4 py-2 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg font-medium transition flex items-center">
+            <iconify-icon icon="mdi:close-circle-outline" class="mr-2 text-lg"></iconify-icon>
+            全部拒绝
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
+
 <script setup>
 import { ref, computed } from 'vue'
+
+// --- 原有状态 ---
 const currentTab = ref('tableSpace')
 const managementTab = ref('applications')
 const searchQuery = ref('')
@@ -655,14 +774,23 @@ const selectedTableId = ref(1)
 const selectedProjectId = ref(1)
 const selectedApplication = ref(null)
 const approvalComment = ref('')
-// 数据同步相关状态
+
+// --- 数据同步相关状态 ---
 const selectedPRId = ref(null)
 const prSearchQuery = ref('')
 const prStatusFilter = ref(null)
 const showTableMenu = ref(false)
+
+// --- 冲突检测相关状态 (新增) ---
+const showConflictModal = ref(false)
+const conflictPrData = ref(null) // 存储发生冲突的那个PR对象
+const currentConflictChanges = ref([]) // 当前PR中涉及冲突的变更项
+const conflictPrChanges = ref([]) // 冲突PR中涉及冲突的变更项
+
 // 通知气泡状态
 const showPermissionBubble = ref(true)
 const showDataModifyBubble = ref(true)
+
 // 表格数据
 const tables = ref([
   {
@@ -729,6 +857,7 @@ const tables = ref([
     versionHistory: []
   }
 ])
+
 // 项目管理数据
 const projects = ref([
   { id: 1, name: 'I项目系统', department: '技术部' },
@@ -736,17 +865,20 @@ const projects = ref([
   { id: 3, name: '分贝通系统', department: '财务部' },
   { id: 4, name: '企业微信管理', department: '行政部' }
 ])
+
 const projectMembers = ref([
   { id: 1, name: '张工', role: '管理员', roleClass: 'bg-blue-100 text-blue-800' },
   { id: 2, name: '李技术', role: '编辑者', roleClass: 'bg-green-100 text-green-800' },
   { id: 3, name: '王经理', role: '编辑者', roleClass: 'bg-green-100 text-green-800' }
 ])
+
 const permissions = ref([
   { id: 1, name: '编辑项目信息', admin: true, editor: true, viewer: false },
   { id: 2, name: '变更流程', admin: true, editor: true, viewer: false },
   { id: 3, name: '审批申请', admin: true, editor: false, viewer: false },
   { id: 4, name: '删除项目', admin: true, editor: false, viewer: false }
 ])
+
 // 权限申请数据
 const applications = ref([
   {
@@ -774,6 +906,7 @@ const applications = ref([
     status: 'pending'
   }
 ])
+
 // Pull Request 数据（数据同步）
 const pullRequests = ref([
   {
@@ -784,6 +917,10 @@ const pullRequests = ref([
     submitter: '张工',
     submitTime: '2025-12-08 10:30',
     status: 'pending',
+    proofFiles: [
+      { name: '项目预算审批单.pdf', size: '2.5 MB' },
+      { name: '2025年度支出计划.xlsx', size: '1.2 MB' }
+    ],
     changes: [
       {
         type: 'modify',
@@ -809,6 +946,7 @@ const pullRequests = ref([
     submitter: '李技术',
     submitTime: '2025-12-07 15:45',
     status: 'merged',
+    proofFiles: [],
     changes: [
       {
         type: 'modify',
@@ -834,6 +972,9 @@ const pullRequests = ref([
     submitter: '王经理',
     submitTime: '2025-12-06 14:20',
     status: 'pending',
+    proofFiles: [
+      { name: '绩效复核报告.docx', size: '850 KB' }
+    ],
     changes: [
       {
         type: 'modify',
@@ -859,6 +1000,7 @@ const pullRequests = ref([
     submitter: '郑总',
     submitTime: '2025-12-05 11:00',
     status: 'merged',
+    proofFiles: [],
     changes: [
       {
         type: 'modify',
@@ -875,11 +1017,33 @@ const pullRequests = ref([
         newValue: '1300000'
       }
     ]
+  },
+  // --- 新增冲突测试数据 ---
+  {
+    id: 5,
+    tableId: 1,
+    tableName: '项目信息表',
+    description: '冲突测试数据：尝试同时修改P001的预算',
+    submitter: '测试员小刘',
+    submitTime: '2025-12-08 11:00',
+    status: 'pending',
+    proofFiles: [],
+    changes: [
+      {
+        type: 'modify',
+        rowIdx: 0, // 与 ID:1 的请求冲突
+        column: '预算', // 与 ID:1 的请求冲突
+        oldValue: '500000',
+        newValue: '600000' // 不同的值
+      }
+    ]
   }
 ])
+
 const adminTables = computed(() => {
   return tables.value
 })
+
 const filteredAdminTables = computed(() => {
   if (!tableSearchQuery.value) return adminTables.value
   return adminTables.value.filter(t =>
@@ -887,15 +1051,19 @@ const filteredAdminTables = computed(() => {
       t.description.toLowerCase().includes(tableSearchQuery.value.toLowerCase())
   )
 })
+
 const selectedTable = computed(() => {
   return tables.value.find(t => t.id === selectedTableId.value)
 })
+
 const selectedProject = computed(() => {
   return projects.value.find(p => p.id === selectedProjectId.value)
 })
+
 const selectedPR = computed(() => {
   return pullRequests.value.find(pr => pr.id === selectedPRId.value)
 })
+
 const filteredPullRequests = computed(() => {
   let result = pullRequests.value
   // 按搜索词过滤
@@ -913,28 +1081,35 @@ const filteredPullRequests = computed(() => {
   }
   return result
 })
+
 // 待处理权限请求
 const pendingPermissions = computed(() => {
   return applications.value.filter(app => app.status === 'pending')
 })
+
 const permissionRequestCount = computed(() => {
   return pendingPermissions.value.length
 })
+
 // 给模板使用的别名
 const pendingPermissionRequests = computed(() => {
   return pendingPermissions.value.length
 })
+
 // 待处理数据修改请求
 const pendingPRs = computed(() => {
   return pullRequests.value.filter(pr => pr.status === 'pending')
 })
+
 const pendingPRCount = computed(() => {
   return pendingPRs.value.length
 })
+
 // 给模板使用的别名
 const pendingDataChangeRequests = computed(() => {
   return pendingPRs.value.length
 })
+
 function getTableData(tableId) {
   const mockData = {
     1: [
@@ -960,6 +1135,7 @@ function getTableData(tableId) {
   }
   return mockData[tableId] || []
 }
+
 function exportTableData(tableId) {
   const table = tables.value.find(t => t.id === tableId)
   if (!table) return
@@ -984,6 +1160,7 @@ function exportTableData(tableId) {
   document.body.removeChild(link)
   alert(`已导出 "${table.name}" 数据`)
 }
+
 function exportProjectData(projectId) {
   const project = projects.value.find(p => p.id === projectId)
   if (!project) return
@@ -999,6 +1176,7 @@ function exportProjectData(projectId) {
   document.body.removeChild(link)
   alert(`已导出 "${project.name}" 项目权限设置数据`)
 }
+
 function importTableData(tableId) {
   const input = document.createElement('input')
   input.type = 'file'
@@ -1025,6 +1203,7 @@ function importTableData(tableId) {
   }
   input.click()
 }
+
 function importTableDataForProject(projectId) {
   const input = document.createElement('input')
   input.type = 'file'
@@ -1050,10 +1229,12 @@ function importTableDataForProject(projectId) {
   }
   input.click()
 }
+
 function selectApplication(app) {
   selectedApplication.value = app
   approvalComment.value = ''
 }
+
 function approveApplication() {
   if (!approvalComment.value || approvalComment.value.length < 20) {
     alert('请输入至少20个字的审批意见')
@@ -1065,6 +1246,7 @@ function approveApplication() {
     alert('已批准申请')
   }
 }
+
 function rejectApplication() {
   if (!approvalComment.value || approvalComment.value.length < 20) {
     alert('请输入至少20个字的审批意见')
@@ -1076,23 +1258,28 @@ function rejectApplication() {
     alert('已拒绝申请')
   }
 }
+
 // 表格编辑相关函数
 const isEditingTable = ref(false)
 const editingTableData = ref({})
 const changedRows = ref([])
+
 function startEditingTable() {
   isEditingTable.value = true
   editingTableData.value = {}
   changedRows.value = []
   showTableMenu.value = false
 }
+
 function toggleTableMenu() {
   showTableMenu.value = !showTableMenu.value
 }
+
 function showTableDetails() {
   alert('表格详情：' + selectedTable.value.name + '\n所有者：' + selectedTable.value.owner + '\n行数：' + selectedTable.value.rows + '\n列数：' + selectedTable.value.columns)
   showTableMenu.value = false
 }
+
 function deleteTable() {
   if (confirm('确定要删除表格 "' + selectedTable.value.name + '" 吗？此操作无法撤销。')) {
     const index = tables.value.findIndex(t => t.id === selectedTableId.value)
@@ -1104,23 +1291,124 @@ function deleteTable() {
   }
   showTableMenu.value = false
 }
+
 function goToDataSync() {
   currentTab.value = 'dataSync'
   selectedPRId.value = null
 }
+
 function goToDataSyncForProject(projectId) {
   currentTab.value = 'dataSync'
   selectedPRId.value = null
   // 可以添加额外逻辑，筛选出与该项目相关的pull requests
 }
-// Pull Request 相关函数
-function mergePullRequest() {
-  if (selectedPR.value) {
-    selectedPR.value.status = 'merged'
-    alert('编辑请求已合并，表格数据已更新')
-    selectedPRId.value = null
+
+// --- 冲突检测核心逻辑 ---
+function checkForConflicts(currentPr) {
+  // 获取除当前PR外的所有待审批PR
+  const otherPendingPrs = pullRequests.value.filter(
+      pr => pr.status === 'pending' &&
+          pr.id !== currentPr.id &&
+          pr.tableId === currentPr.tableId
+  )
+
+  if (otherPendingPrs.length === 0) return null
+
+  // 遍历当前PR的所有变更
+  for (const myChange of currentPr.changes) {
+    // 遍历其他PR
+    for (const otherPr of otherPendingPrs) {
+      // 遍历其他PR的变更
+      for (const otherChange of otherPr.changes) {
+        // 核心检测逻辑：同一行 且 同一列
+        if (myChange.rowIdx === otherChange.rowIdx && myChange.column === otherChange.column) {
+          return {
+            conflictingPr: otherPr
+          }
+        }
+      }
+    }
   }
+  return null
 }
+
+// Pull Request 相关函数 (修改后)
+function mergePullRequest() {
+  if (!selectedPR.value) return
+
+  // 1. 先进行冲突检测
+  const conflictResult = checkForConflicts(selectedPR.value)
+
+  if (conflictResult) {
+    // 2. 如果发现冲突，准备数据并显示弹窗
+    conflictPrData.value = conflictResult.conflictingPr
+
+    // 筛选出具体的冲突项用于展示
+    const overlaps = []
+    const myOverlaps = []
+
+    selectedPR.value.changes.forEach(mc => {
+      const match = conflictResult.conflictingPr.changes.find(
+          oc => oc.rowIdx === mc.rowIdx && oc.column === mc.column
+      )
+      if (match) {
+        myOverlaps.push(mc)
+        overlaps.push(match)
+      }
+    })
+
+    currentConflictChanges.value = myOverlaps
+    conflictPrChanges.value = overlaps
+
+    showConflictModal.value = true
+    return // 阻止后续直接合并
+  }
+
+  // 3. 如果没有冲突，执行原有合并逻辑
+  performMerge(selectedPR.value)
+}
+
+function performMerge(pr) {
+  pr.status = 'merged'
+  alert(`请求 #${pr.id} 已合并，表格数据已更新`)
+  selectedPRId.value = null
+  showConflictModal.value = false
+}
+
+// 冲突解决函数
+function resolveConflict(action) {
+  if (!selectedPR.value || !conflictPrData.value) return
+
+  if (action === 'merge_current') {
+    // 1. 合并当前请求
+    selectedPR.value.status = 'merged'
+    // 2. 拒绝冲突方
+    conflictPrData.value.status = 'rejected'
+    alert(`已合并当前请求 #${selectedPR.value.id}，并自动拒绝了冲突请求 #${conflictPrData.value.id}`)
+
+  } else if (action === 'reject_current') {
+    // 1. 拒绝当前请求
+    selectedPR.value.status = 'rejected'
+    // 2. 冲突方保持 pending，等待后续处理
+    alert(`已拒绝当前请求 #${selectedPR.value.id}，保留了冲突请求 #${conflictPrData.value.id} 待审核`)
+
+  } else if (action === 'reject_all') {
+    // 1. 拒绝双方
+    selectedPR.value.status = 'rejected'
+    conflictPrData.value.status = 'rejected'
+    alert('已同时拒绝两个产生冲突的请求')
+  }
+
+  // 清理状态并关闭
+  selectedPRId.value = null
+  showConflictModal.value = false
+  conflictPrData.value = null
+}
+
+function closeConflictModal() {
+  showConflictModal.value = false
+}
+
 function rejectPullRequest() {
   if (selectedPR.value) {
     selectedPR.value.status = 'rejected'
@@ -1128,6 +1416,7 @@ function rejectPullRequest() {
     selectedPRId.value = null
   }
 }
+
 // 工具函数
 function formatDate(dateString) {
   const date = new Date(dateString)
@@ -1141,6 +1430,7 @@ function formatDate(dateString) {
   if (diffDays < 7) return diffDays + '天前'
   return date.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
+
 function submitTableChangesForReview() {
   if (changedRows.value.length === 0) {
     alert('没有任何修改')
@@ -1162,9 +1452,10 @@ function submitTableChangesForReview() {
     return `第 ${rowIdx + 1} 行: ${changes.join(', ')}`
   }).join('\n')
   const summary = `已修改 ${changedRows.value.length} 行\n${changesSummary}`
-  // 在这里可以显示一个模态框来选择审核人
-  // 现在先模拟提交
+
+  // 模拟提交
   alert('变更内容:\n' + summary + '\n已提交审核请求')
+
   // 添加到pull requests
   const newPR = {
     id: pullRequests.value.length + 1,
@@ -1174,13 +1465,19 @@ function submitTableChangesForReview() {
     submitter: '当前用户',
     submitTime: new Date().toLocaleString('zh-CN'),
     status: 'pending',
-    changes: changedRows.value.map((rowIdx, changeIdx) => ({
-      type: 'modify',
-      rowIdx: rowIdx,
-      column: '多列修改',
-      oldValue: '查看详情',
-      newValue: '查看详情'
-    }))
+    proofFiles: [], // 新增：空文件列表
+    changes: changedRows.value.map((rowIdx) => {
+      // 简化处理，实际应该每列一个change
+      // 这里为了演示，我们假设只改了第一列
+      const col = selectedTable.value.allColumns[0];
+      return {
+        type: 'modify',
+        rowIdx: rowIdx,
+        column: col,
+        oldValue: '演示数据',
+        newValue: editingTableData.value[`${rowIdx}-${col}`] || '新值'
+      }
+    })
   }
   pullRequests.value.push(newPR)
   // 重置编辑状态
@@ -1188,6 +1485,7 @@ function submitTableChangesForReview() {
   editingTableData.value = {}
   changedRows.value = []
 }
+
 function cancelTableEdit() {
   if (changedRows.value.length > 0 && !confirm('确定要放弃所有修改吗？')) {
     return
@@ -1197,6 +1495,7 @@ function cancelTableEdit() {
   changedRows.value = []
 }
 </script>
+
 <style scoped>
 .animate-spin {
   animation: spin 1s linear infinite;

@@ -112,6 +112,12 @@
                 <p class="text-indigo-100 text-sm mt-1">{{ selectedTable.description }}</p>
               </div>
               <div class="flex items-center space-x-2">
+                <!-- 新增：列权限按钮 -->
+                <button @click="openColumnPermissionModal" class="text-white hover:bg-indigo-800 rounded-lg px-3 py-2 flex items-center space-x-1 transition border border-indigo-500 bg-indigo-700 bg-opacity-50">
+                  <iconify-icon icon="mdi:shield-account-outline" class="text-xl"></iconify-icon>
+                  <span class="text-sm font-medium">列权限</span>
+                </button>
+                <div class="h-6 w-px bg-indigo-400 mx-2"></div>
                 <button @click="startEditingTable" class="text-white hover:bg-indigo-800 rounded-lg px-3 py-2 flex items-center space-x-1 transition">
                   <iconify-icon icon="mdi:pencil" class="text-xl"></iconify-icon>
                   <span class="text-sm font-medium">编辑</span>
@@ -132,7 +138,7 @@
                   <button @click="toggleTableMenu" class="text-white hover:bg-indigo-800 rounded-lg px-3 py-2 flex items-center transition">
                     <iconify-icon icon="mdi:dots-vertical" class="text-xl"></iconify-icon>
                   </button>
-                  <div v-if="showTableMenu" class="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg z-10 min-w-48">
+                  <div v-if="showTableMenu" class="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg z-10 min-w-48 text-gray-800">
                     <button @click="showTableDetails" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 first:rounded-t-lg flex items-center">
                       <iconify-icon icon="mdi:information-outline" class="mr-2"></iconify-icon>
                       查看详情
@@ -449,7 +455,7 @@
           </div>
         </div>
       </template>
-      <!-- 数据同步标签页（Pull Request风格） -->
+      <!-- 数据同步标签页 -->
       <template v-if="currentTab === 'dataSync'">
         <!-- 左侧：PR列表 -->
         <div class="w-80 bg-white rounded-xl shadow flex flex-col m-6 mr-3">
@@ -560,7 +566,7 @@
                     <p class="text-gray-700 whitespace-pre-wrap">{{ selectedPR.description }}</p>
                   </div>
                 </div>
-                <!-- 证明材料 (新增) -->
+                <!-- 证明材料 -->
                 <div v-if="selectedPR.proofFiles && selectedPR.proofFiles.length > 0">
                   <h3 class="text-lg font-bold text-gray-900 mb-3">证明材料</h3>
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -759,6 +765,100 @@
         </div>
       </div>
     </div>
+
+    <!-- 新增：列级权限设置模态框 -->
+    <div v-if="showColPermModal" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50 backdrop-blur-sm">
+      <div class="bg-white rounded-xl shadow-2xl w-full max-w-3xl overflow-hidden flex flex-col max-h-[85vh]">
+        <!-- 头部 -->
+        <div class="bg-white px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+          <div>
+            <h3 class="text-xl font-bold text-gray-900">列级权限配置</h3>
+            <p class="text-sm text-gray-500">设置不同角色对表格 "{{ selectedTable?.name }}" 各列的访问权限</p>
+          </div>
+          <button @click="closeColPermModal" class="text-gray-400 hover:text-gray-600 transition">
+            <iconify-icon icon="mdi:close" class="text-2xl"></iconify-icon>
+          </button>
+        </div>
+
+        <!-- 主体内容 -->
+        <div class="flex flex-1 overflow-hidden">
+          <!-- 左侧：角色列表 -->
+          <div class="w-48 bg-gray-50 border-r border-gray-200 flex flex-col p-2 space-y-1">
+            <div class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">选择角色</div>
+            <button v-for="role in availableRoles" :key="role.id"
+                    @click="switchPermRole(role.id)"
+                    :class="['w-full text-left px-4 py-3 rounded-lg text-sm font-medium transition flex items-center justify-between',
+                activePermRole === role.id ? 'bg-white shadow text-indigo-700 border border-gray-200' : 'text-gray-600 hover:bg-gray-100']">
+              {{ role.name }}
+              <iconify-icon v-if="activePermRole === role.id" icon="mdi:chevron-right" class="text-indigo-500"></iconify-icon>
+            </button>
+          </div>
+
+          <!-- 右侧：权限矩阵 -->
+          <div class="flex-1 overflow-y-auto p-6 bg-white">
+            <div class="flex items-center justify-between mb-4">
+              <h4 class="font-bold text-gray-800">
+                {{ availableRoles.find(r => r.id === activePermRole)?.name }} - 权限详情
+              </h4>
+              <div class="flex space-x-2">
+                <button @click="toggleAllPerms('view')" class="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded text-gray-600 transition">
+                  全选/反选查看
+                </button>
+                <button @click="toggleAllPerms('edit')" class="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded text-gray-600 transition">
+                  全选/反选编辑
+                </button>
+              </div>
+            </div>
+
+            <div class="border border-gray-200 rounded-lg overflow-hidden">
+              <table class="w-full text-sm text-left">
+                <thead class="bg-gray-50 text-gray-700 font-medium">
+                <tr>
+                  <th class="px-4 py-3 border-b border-gray-200 w-1/2">列名</th>
+                  <th class="px-4 py-3 border-b border-gray-200 text-center w-1/4">可见 (View)</th>
+                  <th class="px-4 py-3 border-b border-gray-200 text-center w-1/4">可编辑 (Edit)</th>
+                </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                <tr v-for="col in selectedTable?.allColumns" :key="col" class="hover:bg-gray-50 transition">
+                  <td class="px-4 py-3 font-medium text-gray-900">{{ col }}</td>
+                  <!-- 查看权限 -->
+                  <td class="px-4 py-3 text-center">
+                    <label class="inline-flex items-center cursor-pointer">
+                      <input type="checkbox"
+                             v-model="tempPermData[activePermRole][col].view"
+                             @change="handleViewChange(col)"
+                             class="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300 transition cursor-pointer">
+                    </label>
+                  </td>
+                  <!-- 编辑权限 -->
+                  <td class="px-4 py-3 text-center">
+                    <label class="inline-flex items-center" :class="!tempPermData[activePermRole][col].view ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'">
+                      <input type="checkbox"
+                             v-model="tempPermData[activePermRole][col].edit"
+                             :disabled="!tempPermData[activePermRole][col].view"
+                             class="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 border-gray-300 transition cursor-pointer disabled:cursor-not-allowed">
+                    </label>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- 底部按钮 -->
+        <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
+          <button @click="closeColPermModal" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition">
+            取消
+          </button>
+          <button @click="saveColumnPermissions" class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium transition shadow-sm flex items-center">
+            <iconify-icon icon="mdi:content-save-outline" class="mr-2"></iconify-icon>
+            保存配置
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -767,7 +867,6 @@ import { ref, computed } from 'vue'
 
 // --- 原有状态 ---
 const currentTab = ref('tableSpace')
-const managementTab = ref('applications')
 const searchQuery = ref('')
 const tableSearchQuery = ref('')
 const selectedTableId = ref(1)
@@ -781,17 +880,26 @@ const prSearchQuery = ref('')
 const prStatusFilter = ref(null)
 const showTableMenu = ref(false)
 
-// --- 冲突检测相关状态 (新增) ---
+// --- 冲突检测相关状态 ---
 const showConflictModal = ref(false)
-const conflictPrData = ref(null) // 存储发生冲突的那个PR对象
-const currentConflictChanges = ref([]) // 当前PR中涉及冲突的变更项
-const conflictPrChanges = ref([]) // 冲突PR中涉及冲突的变更项
+const conflictPrData = ref(null)
+const currentConflictChanges = ref([])
+const conflictPrChanges = ref([])
 
-// 通知气泡状态
-const showPermissionBubble = ref(true)
-const showDataModifyBubble = ref(true)
+// --- 列级权限管理相关状态 (新增) ---
+const showColPermModal = ref(false)
+const activePermRole = ref('role_employee')
+const tempPermData = ref({}) // 临时存储模态框中的修改
 
-// 表格数据
+// 模拟角色列表 (新增)
+const availableRoles = [
+  { id: 'role_manager', name: '部门经理' },
+  { id: 'role_employee', name: '普通员工' },
+  { id: 'role_finance', name: '财务专员' },
+  { id: 'role_auditor', name: '审计人员' }
+]
+
+// 表格数据 (更新结构)
 const tables = ref([
   {
     id: 1,
@@ -807,6 +915,20 @@ const tables = ref([
       { id: 2, name: '李主管', department: '技术部', position: '部门主管' }
     ],
     allColumns: ['项目ID', '项目名称', '负责人', '开始时间', '预期完成时间', '状态', '预算', '实际支出'],
+    // 新增字段
+    columnPermissions: {
+      'role_manager': {}, // 经理默认全权
+      'role_employee': {  // 普通员工示例
+        '项目ID': { view: true, edit: false },
+        '项目名称': { view: true, edit: false },
+        '负责人': { view: true, edit: false },
+        '开始时间': { view: true, edit: false },
+        '预期完成时间': { view: true, edit: false },
+        '状态': { view: true, edit: true },
+        '预算': { view: false, edit: false },
+        '实际支出': { view: false, edit: false }
+      }
+    },
     versionHistory: []
   },
   {
@@ -822,6 +944,7 @@ const tables = ref([
       { id: 3, name: '张工', department: '技术部', position: '技术总监' }
     ],
     allColumns: ['员工ID', '员工名称', '部门', '月份', '绩效评分', '备注'],
+    columnPermissions: {},
     versionHistory: []
   },
   {
@@ -838,6 +961,7 @@ const tables = ref([
       { id: 5, name: '刘审计', department: '审计部', position: '审计主管' }
     ],
     allColumns: ['部门', '预算总额', '已支出', '预留', '年份', '审批状态', '负责人'],
+    columnPermissions: {},
     versionHistory: []
   },
   {
@@ -854,6 +978,7 @@ const tables = ref([
       { id: 7, name: '关主任', department: '销售支持', position: '数据主任' }
     ],
     allColumns: ['客户ID', '客户名称', '行业', '联系电话', '地址', '合作状态', '合同金额', '业务负责人', '最后联系时间'],
+    columnPermissions: {},
     versionHistory: []
   }
 ])
@@ -907,7 +1032,7 @@ const applications = ref([
   }
 ])
 
-// Pull Request 数据（数据同步）
+// Pull Request 数据
 const pullRequests = ref([
   {
     id: 1,
@@ -922,20 +1047,8 @@ const pullRequests = ref([
       { name: '2025年度支出计划.xlsx', size: '1.2 MB' }
     ],
     changes: [
-      {
-        type: 'modify',
-        rowIdx: 0,
-        column: '预算',
-        oldValue: '500000',
-        newValue: '550000'
-      },
-      {
-        type: 'modify',
-        rowIdx: 0,
-        column: '实际支出',
-        oldValue: '320000',
-        newValue: '380000'
-      }
+      { type: 'modify', rowIdx: 0, column: '预算', oldValue: '500000', newValue: '550000' },
+      { type: 'modify', rowIdx: 0, column: '实际支出', oldValue: '320000', newValue: '380000' }
     ]
   },
   {
@@ -948,20 +1061,8 @@ const pullRequests = ref([
     status: 'merged',
     proofFiles: [],
     changes: [
-      {
-        type: 'modify',
-        rowIdx: 1,
-        column: '状态',
-        oldValue: '进行中',
-        newValue: '已完成'
-      },
-      {
-        type: 'modify',
-        rowIdx: 1,
-        column: '实际支出',
-        oldValue: '450000',
-        newValue: '750000'
-      }
+      { type: 'modify', rowIdx: 1, column: '状态', oldValue: '进行中', newValue: '已完成' },
+      { type: 'modify', rowIdx: 1, column: '实际支出', oldValue: '450000', newValue: '750000' }
     ]
   },
   {
@@ -972,24 +1073,10 @@ const pullRequests = ref([
     submitter: '王经理',
     submitTime: '2025-12-06 14:20',
     status: 'pending',
-    proofFiles: [
-      { name: '绩效复核报告.docx', size: '850 KB' }
-    ],
+    proofFiles: [{ name: '绩效复核报告.docx', size: '850 KB' }],
     changes: [
-      {
-        type: 'modify',
-        rowIdx: 0,
-        column: '绩效评分',
-        oldValue: '95',
-        newValue: '96'
-      },
-      {
-        type: 'modify',
-        rowIdx: 0,
-        column: '备注',
-        oldValue: '表现优秀',
-        newValue: '杰出表现'
-      }
+      { type: 'modify', rowIdx: 0, column: '绩效评分', oldValue: '95', newValue: '96' },
+      { type: 'modify', rowIdx: 0, column: '备注', oldValue: '表现优秀', newValue: '杰出表现' }
     ]
   },
   {
@@ -1002,23 +1089,10 @@ const pullRequests = ref([
     status: 'merged',
     proofFiles: [],
     changes: [
-      {
-        type: 'modify',
-        rowIdx: 0,
-        column: '预算总额',
-        oldValue: '2000000',
-        newValue: '2200000'
-      },
-      {
-        type: 'modify',
-        rowIdx: 0,
-        column: '已支出',
-        oldValue: '1200000',
-        newValue: '1300000'
-      }
+      { type: 'modify', rowIdx: 0, column: '预算总额', oldValue: '2000000', newValue: '2200000' },
+      { type: 'modify', rowIdx: 0, column: '已支出', oldValue: '1200000', newValue: '1300000' }
     ]
   },
-  // --- 新增冲突测试数据 ---
   {
     id: 5,
     tableId: 1,
@@ -1029,13 +1103,7 @@ const pullRequests = ref([
     status: 'pending',
     proofFiles: [],
     changes: [
-      {
-        type: 'modify',
-        rowIdx: 0, // 与 ID:1 的请求冲突
-        column: '预算', // 与 ID:1 的请求冲突
-        oldValue: '500000',
-        newValue: '600000' // 不同的值
-      }
+      { type: 'modify', rowIdx: 0, column: '预算', oldValue: '500000', newValue: '600000' }
     ]
   }
 ])
@@ -1066,7 +1134,6 @@ const selectedPR = computed(() => {
 
 const filteredPullRequests = computed(() => {
   let result = pullRequests.value
-  // 按搜索词过滤
   if (prSearchQuery.value) {
     const query = prSearchQuery.value.toLowerCase()
     result = result.filter(pr =>
@@ -1075,7 +1142,6 @@ const filteredPullRequests = computed(() => {
         pr.submitter.toLowerCase().includes(query)
     )
   }
-  // 按状态过滤
   if (prStatusFilter.value) {
     result = result.filter(pr => pr.status === prStatusFilter.value)
   }
@@ -1087,11 +1153,6 @@ const pendingPermissions = computed(() => {
   return applications.value.filter(app => app.status === 'pending')
 })
 
-const permissionRequestCount = computed(() => {
-  return pendingPermissions.value.length
-})
-
-// 给模板使用的别名
 const pendingPermissionRequests = computed(() => {
   return pendingPermissions.value.length
 })
@@ -1101,15 +1162,82 @@ const pendingPRs = computed(() => {
   return pullRequests.value.filter(pr => pr.status === 'pending')
 })
 
-const pendingPRCount = computed(() => {
-  return pendingPRs.value.length
-})
-
-// 给模板使用的别名
 const pendingDataChangeRequests = computed(() => {
   return pendingPRs.value.length
 })
 
+// --- 列级权限相关方法 ---
+function openColumnPermissionModal() {
+  if (!selectedTable.value) return
+
+  // 初始化/深拷贝当前表格的权限数据
+  const currentTablePerms = selectedTable.value.columnPermissions || {}
+  const initializedPerms = {}
+
+  // 为每个角色、每一列确保有数据结构
+  availableRoles.forEach(role => {
+    initializedPerms[role.id] = {}
+    selectedTable.value.allColumns.forEach(col => {
+      // 获取现有配置，或者默认全开(view=true, edit=false)
+      const existing = currentTablePerms[role.id]?.[col]
+      initializedPerms[role.id][col] = {
+        view: existing ? existing.view : true,
+        edit: existing ? existing.edit : false
+      }
+    })
+  })
+
+  tempPermData.value = initializedPerms
+  activePermRole.value = 'role_employee' // 默认选中普通员工方便演示
+  showColPermModal.value = true
+}
+
+function closeColPermModal() {
+  showColPermModal.value = false
+}
+
+function switchPermRole(roleId) {
+  activePermRole.value = roleId
+}
+
+// 逻辑处理：如果取消了"可见"，则"可编辑"也必须取消
+function handleViewChange(col) {
+  const roleData = tempPermData.value[activePermRole.value]
+  if (!roleData[col].view) {
+    roleData[col].edit = false
+  }
+}
+
+// 全选/反选 辅助函数
+function toggleAllPerms(type) { // type = 'view' | 'edit'
+  const roleData = tempPermData.value[activePermRole.value]
+  const columns = selectedTable.value.allColumns
+
+  // 检查是否全选了
+  const allChecked = columns.every(col => roleData[col][type])
+
+  columns.forEach(col => {
+    roleData[col][type] = !allChecked
+    // 联动逻辑
+    if (type === 'view' && !roleData[col].view) {
+      roleData[col].edit = false
+    }
+    if (type === 'edit' && roleData[col].edit) {
+      roleData[col].view = true
+    }
+  })
+}
+
+// 保存权限
+function saveColumnPermissions() {
+  if (!selectedTable.value) return
+  // 将 tempPermData 保存回 selectedTable
+  selectedTable.value.columnPermissions = JSON.parse(JSON.stringify(tempPermData.value))
+  alert(`"${selectedTable.value.name}" 的列级权限配置已保存！\n\n(提示：实际生效需要结合后端API鉴权，此处仅为前端配置演示)`)
+  closeColPermModal()
+}
+
+// --- 表格数据获取 ---
 function getTableData(tableId) {
   const mockData = {
     1: [
@@ -1184,21 +1312,7 @@ function importTableData(tableId) {
   input.onchange = (e) => {
     const file = e.target.files[0]
     if (file) {
-      const reader = new FileReader()
-      reader.onload = function(event) {
-        try {
-          // 简化的CSV解析 (实际应用中应该使用更健壮的解析库)
-          const content = event.target.result
-          // 在这里处理CSV内容
-          alert(`已选择文件: ${file.name}\n文件大小: ${Math.round(file.size / 1024)}KB\n\n注意：演示版本，实际导入功能需要后端支持`)
-        } catch (error) {
-          alert('导入失败: ' + error.message)
-        }
-      }
-      reader.onerror = function() {
-        alert('读取文件失败')
-      }
-      reader.readAsText(file)
+      alert(`已选择文件: ${file.name}\n文件大小: ${Math.round(file.size / 1024)}KB\n\n注意：演示版本，实际导入功能需要后端支持`)
     }
   }
   input.click()
@@ -1211,20 +1325,7 @@ function importTableDataForProject(projectId) {
   input.onchange = (e) => {
     const file = e.target.files[0]
     if (file) {
-      const reader = new FileReader()
-      reader.onload = function(event) {
-        try {
-          const content = event.target.result
-          // 在这里处理CSV内容
-          alert(`已选择文件: ${file.name}\n文件大小: ${Math.round(file.size / 1024)}KB\n\n将导入到项目: ${projects.value.find(p => p.id === projectId)?.name}`)
-        } catch (error) {
-          alert('导入失败: ' + error.message)
-        }
-      }
-      reader.onerror = function() {
-        alert('读取文件失败')
-      }
-      reader.readAsText(file)
+      alert(`已选择文件: ${file.name}\n文件大小: ${Math.round(file.size / 1024)}KB\n\n将导入到项目: ${projects.value.find(p => p.id === projectId)?.name}`)
     }
   }
   input.click()
@@ -1300,31 +1401,22 @@ function goToDataSync() {
 function goToDataSyncForProject(projectId) {
   currentTab.value = 'dataSync'
   selectedPRId.value = null
-  // 可以添加额外逻辑，筛选出与该项目相关的pull requests
 }
 
-// --- 冲突检测核心逻辑 ---
+// 冲突检测逻辑
 function checkForConflicts(currentPr) {
-  // 获取除当前PR外的所有待审批PR
   const otherPendingPrs = pullRequests.value.filter(
       pr => pr.status === 'pending' &&
           pr.id !== currentPr.id &&
           pr.tableId === currentPr.tableId
   )
-
   if (otherPendingPrs.length === 0) return null
 
-  // 遍历当前PR的所有变更
   for (const myChange of currentPr.changes) {
-    // 遍历其他PR
     for (const otherPr of otherPendingPrs) {
-      // 遍历其他PR的变更
       for (const otherChange of otherPr.changes) {
-        // 核心检测逻辑：同一行 且 同一列
         if (myChange.rowIdx === otherChange.rowIdx && myChange.column === otherChange.column) {
-          return {
-            conflictingPr: otherPr
-          }
+          return { conflictingPr: otherPr }
         }
       }
     }
@@ -1332,21 +1424,13 @@ function checkForConflicts(currentPr) {
   return null
 }
 
-// Pull Request 相关函数 (修改后)
 function mergePullRequest() {
   if (!selectedPR.value) return
-
-  // 1. 先进行冲突检测
   const conflictResult = checkForConflicts(selectedPR.value)
-
   if (conflictResult) {
-    // 2. 如果发现冲突，准备数据并显示弹窗
     conflictPrData.value = conflictResult.conflictingPr
-
-    // 筛选出具体的冲突项用于展示
     const overlaps = []
     const myOverlaps = []
-
     selectedPR.value.changes.forEach(mc => {
       const match = conflictResult.conflictingPr.changes.find(
           oc => oc.rowIdx === mc.rowIdx && oc.column === mc.column
@@ -1356,15 +1440,11 @@ function mergePullRequest() {
         overlaps.push(match)
       }
     })
-
     currentConflictChanges.value = myOverlaps
     conflictPrChanges.value = overlaps
-
     showConflictModal.value = true
-    return // 阻止后续直接合并
+    return
   }
-
-  // 3. 如果没有冲突，执行原有合并逻辑
   performMerge(selectedPR.value)
 }
 
@@ -1375,31 +1455,20 @@ function performMerge(pr) {
   showConflictModal.value = false
 }
 
-// 冲突解决函数
 function resolveConflict(action) {
   if (!selectedPR.value || !conflictPrData.value) return
-
   if (action === 'merge_current') {
-    // 1. 合并当前请求
     selectedPR.value.status = 'merged'
-    // 2. 拒绝冲突方
     conflictPrData.value.status = 'rejected'
     alert(`已合并当前请求 #${selectedPR.value.id}，并自动拒绝了冲突请求 #${conflictPrData.value.id}`)
-
   } else if (action === 'reject_current') {
-    // 1. 拒绝当前请求
     selectedPR.value.status = 'rejected'
-    // 2. 冲突方保持 pending，等待后续处理
     alert(`已拒绝当前请求 #${selectedPR.value.id}，保留了冲突请求 #${conflictPrData.value.id} 待审核`)
-
   } else if (action === 'reject_all') {
-    // 1. 拒绝双方
     selectedPR.value.status = 'rejected'
     conflictPrData.value.status = 'rejected'
     alert('已同时拒绝两个产生冲突的请求')
   }
-
-  // 清理状态并关闭
   selectedPRId.value = null
   showConflictModal.value = false
   conflictPrData.value = null
@@ -1417,7 +1486,6 @@ function rejectPullRequest() {
   }
 }
 
-// 工具函数
 function formatDate(dateString) {
   const date = new Date(dateString)
   const now = new Date()
@@ -1452,11 +1520,8 @@ function submitTableChangesForReview() {
     return `第 ${rowIdx + 1} 行: ${changes.join(', ')}`
   }).join('\n')
   const summary = `已修改 ${changedRows.value.length} 行\n${changesSummary}`
-
-  // 模拟提交
   alert('变更内容:\n' + summary + '\n已提交审核请求')
 
-  // 添加到pull requests
   const newPR = {
     id: pullRequests.value.length + 1,
     tableId: selectedTableId.value,
@@ -1465,10 +1530,8 @@ function submitTableChangesForReview() {
     submitter: '当前用户',
     submitTime: new Date().toLocaleString('zh-CN'),
     status: 'pending',
-    proofFiles: [], // 新增：空文件列表
+    proofFiles: [],
     changes: changedRows.value.map((rowIdx) => {
-      // 简化处理，实际应该每列一个change
-      // 这里为了演示，我们假设只改了第一列
       const col = selectedTable.value.allColumns[0];
       return {
         type: 'modify',
@@ -1480,7 +1543,6 @@ function submitTableChangesForReview() {
     })
   }
   pullRequests.value.push(newPR)
-  // 重置编辑状态
   isEditingTable.value = false
   editingTableData.value = {}
   changedRows.value = []

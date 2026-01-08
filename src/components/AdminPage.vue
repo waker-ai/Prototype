@@ -1,103 +1,104 @@
 <template>
-  <div class="bg-gray-50 min-h-screen font-sans flex flex-col">
+  <div class="min-h-screen font-sans flex flex-col">
     <!-- 顶部导航 -->
-    <header class="sticky top-0 z-10 bg-white shadow-sm h-20 flex items-center px-8">
+    <header class="sticky top-0 z-10 bg-white border-b-4 border-black h-20 flex items-center px-8">
       <div class="flex items-center space-x-3">
-        <iconify-icon class="text-indigo-700 text-2xl" icon="material-symbols:rocket-launch"></iconify-icon>
-        <h1 class="text-2xl font-bold text-gray-900">表格管理平台</h1>
+        <div class="bg-black p-1">
+          <iconify-icon class="text-neo-lime text-2xl" icon="material-symbols:rocket-launch"></iconify-icon>
+        </div>
+        <h1 class="text-3xl font-display font-black tracking-tighter italic text-black uppercase transform -skew-x-6">表格管理平台</h1>
       </div>
       <div class="ml-auto flex items-center space-x-6">
         <div class="relative">
           <input
             v-model="searchQuery"
-            class="w-64 px-4 py-2 bg-gray-100 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-600"
-            placeholder="搜索表格..." type="text" />
-          <iconify-icon class="absolute right-3 top-2.5 text-gray-500 text-xl" icon="mdi:magnify"></iconify-icon>
+            class="neo-input w-64 px-4 py-2 bg-white text-black font-bold placeholder-gray-500 focus:ring-0"
+            placeholder="SEARCH..." type="text" />
+          <iconify-icon class="absolute right-3 top-2.5 text-black text-xl font-bold" icon="mdi:magnify"></iconify-icon>
         </div>
-        <div class="flex items-center space-x-2 py-1">
-          <div class="bg-gray-200 border-2 border-dashed rounded-xl w-10 h-10"></div>
-          <span class="font-medium text-gray-700">管理员</span>
+        <div class="flex items-center space-x-2 py-1 px-3 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-neo-pink transform -rotate-2">
+          <span class="font-black text-black uppercase">管理员</span>
         </div>
-        <router-link to="/operator" class="text-indigo-600 hover:text-indigo-800">
+        <router-link to="/operator" class="neo-btn px-4 py-2 text-black hover:text-black no-underline inline-block">
           操作者视图
         </router-link>
       </div>
     </header>
 
     <!-- 页面选项卡 -->
-    <div class="bg-white border-b border-gray-200 px-8">
-      <div class="flex items-center space-x-1">
+    <div class="bg-white border-b-4 border-black px-8 py-4 animate-fade-in-up">
+      <div class="flex items-center space-x-4">
         <button @click="currentTab = 'tableSpace'"
-          :class="['px-6 py-3 font-medium transition border-b-2',
+          :class="['px-6 py-3 font-black text-lg transition-all border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]',
             currentTab === 'tableSpace'
-              ? 'border-indigo-600 text-indigo-700'
-              : 'border-transparent text-gray-600 hover:text-indigo-700']">
+              ? 'bg-neo-lime text-black translate-x-[2px] translate-y-[2px] shadow-none'
+              : 'bg-white text-gray-500 hover:bg-gray-100 hover:text-black']">
           <iconify-icon icon="mdi:table" class="inline mr-2"></iconify-icon>
           表格空间
         </button>
         <button @click="currentTab = 'permissions'"
-          :class="['px-6 py-3 font-medium transition border-b-2 relative',
+          :class="['px-6 py-3 font-black text-lg transition-all border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] relative',
             currentTab === 'permissions'
-              ? 'border-indigo-600 text-indigo-700'
-              : 'border-transparent text-gray-600 hover:text-indigo-700']">
+              ? 'bg-neo-lime text-black translate-x-[2px] translate-y-[2px] shadow-none'
+              : 'bg-white text-gray-500 hover:bg-gray-100 hover:text-black']">
           <iconify-icon icon="mdi:shield-lock" class="inline mr-2"></iconify-icon>
           权限设置
-          <span v-if="pendingPermissionRequests > 0" class="absolute top-1 right-1 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">{{ pendingPermissionRequests }}</span>
+          <span v-if="pendingPermissionRequests > 0" class="absolute -top-2 -right-2 inline-flex items-center justify-center w-6 h-6 text-xs font-bold leading-none text-white bg-black border-2 border-black">{{ pendingPermissionRequests }}</span>
         </button>
         <button @click="currentTab = 'applications'"
-          :class="['px-6 py-3 font-medium transition border-b-2 relative',
+          :class="['px-6 py-3 font-black text-lg transition-all border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] relative',
             currentTab === 'applications'
-              ? 'border-indigo-600 text-indigo-700'
-              : 'border-transparent text-gray-600 hover:text-indigo-700']">
+              ? 'bg-neo-lime text-black translate-x-[2px] translate-y-[2px] shadow-none'
+              : 'bg-white text-gray-500 hover:bg-gray-100 hover:text-black']">
           <iconify-icon icon="mdi:clipboard-check" class="inline mr-2"></iconify-icon>
           权限申请审批
-          <span v-if="pendingPermissionRequests > 0" class="absolute top-1 right-1 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">{{ pendingPermissionRequests }}</span>
+          <span v-if="pendingPermissionRequests > 0" class="absolute -top-2 -right-2 inline-flex items-center justify-center w-6 h-6 text-xs font-bold leading-none text-white bg-black border-2 border-black">{{ pendingPermissionRequests }}</span>
         </button>
         <button @click="currentTab = 'dataSync'"
-          :class="['px-6 py-3 font-medium transition border-b-2 relative',
+          :class="['px-6 py-3 font-black text-lg transition-all border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] relative',
             currentTab === 'dataSync'
-              ? 'border-indigo-600 text-indigo-700'
-              : 'border-transparent text-gray-600 hover:text-indigo-700']">
+              ? 'bg-neo-lime text-black translate-x-[2px] translate-y-[2px] shadow-none'
+              : 'bg-white text-gray-500 hover:bg-gray-100 hover:text-black']">
           <iconify-icon icon="mdi:cloud-sync" class="inline mr-2"></iconify-icon>
           数据同步
-          <span v-if="pendingDataChangeRequests > 0" class="absolute top-1 right-1 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">{{ pendingDataChangeRequests }}</span>
+          <span v-if="pendingDataChangeRequests > 0" class="absolute -top-2 -right-2 inline-flex items-center justify-center w-6 h-6 text-xs font-bold leading-none text-white bg-black border-2 border-black">{{ pendingDataChangeRequests }}</span>
         </button>
       </div>
     </div>
 
     <!-- 主容器 -->
-    <div class="flex-1 overflow-hidden flex">
+    <div class="flex-1 overflow-hidden flex bg-transparent p-4">
       <!-- 表格空间标签页 -->
       <template v-if="currentTab === 'tableSpace'">
         <!-- 左侧：表格列表 -->
-        <div class="w-80 bg-white rounded-xl shadow flex flex-col m-6 mr-3">
-          <div class="border-b border-gray-200 p-4">
-            <h2 class="text-lg font-bold text-gray-900">管理的表格</h2>
-            <p class="text-xs text-gray-600 mt-1">共 {{ adminTables.length }} 个表格</p>
+        <div class="w-80 bg-white border-4 border-black shadow-neo flex flex-col m-2 mr-3 rounded-none">
+          <div class="border-b-4 border-black p-4 bg-neo-yellow">
+            <h2 class="text-xl font-black text-black uppercase tracking-tight">管理的表格</h2>
+            <p class="text-xs font-bold text-black border-2 border-black bg-white inline-block px-1 mt-1">共 {{ adminTables.length }} 个表格</p>
           </div>
 
           <!-- 搜索 -->
-          <div class="border-b border-gray-200 p-4">
+          <div class="border-b-4 border-black p-4 bg-white">
             <div class="relative">
-              <input v-model="tableSearchQuery" type="text" placeholder="搜索表格..."
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" />
-              <iconify-icon icon="mdi:magnify" class="absolute right-3 top-2.5 text-gray-500"></iconify-icon>
+              <input v-model="tableSearchQuery" type="text" placeholder="SEARCH..."
+                class="neo-input w-full px-4 py-2 bg-white text-black font-bold placeholder-gray-500" />
+              <iconify-icon icon="mdi:magnify" class="absolute right-3 top-2.5 text-black font-bold"></iconify-icon>
             </div>
           </div>
 
           <!-- 表格列表 -->
-          <div class="flex-1 overflow-y-auto">
-            <div class="space-y-2 p-3">
+          <div class="flex-1 overflow-y-auto p-0">
+            <div class="space-y-0 p-0">
               <div v-for="table in filteredAdminTables" :key="table.id"
-                :class="['p-4 rounded-lg border-l-4 transition hover:shadow-md cursor-pointer',
+                :class="['p-4 border-b-4 border-black transition-all cursor-pointer hover:bg-neo-lime hover:pl-6',
                   selectedTableId === table.id
-                    ? 'border-l-indigo-600 bg-indigo-50 border border-indigo-200'
-                    : 'border-l-gray-300 bg-white border border-gray-200 hover:border-gray-300']"
+                    ? 'bg-black text-white hover:bg-black hover:text-white'
+                    : 'bg-white text-black']"
                 @click="selectedTableId = table.id">
-                <h3 class="font-medium text-gray-900">{{ table.name }}</h3>
-                <p class="text-xs text-gray-600 mt-1 line-clamp-2">{{ table.description }}</p>
+                <h3 class="font-black text-lg uppercase">{{ table.name }}</h3>
+                <p :class="['text-xs font-bold mt-1 line-clamp-2', selectedTableId === table.id ? 'text-gray-300' : 'text-gray-600']">{{ table.description }}</p>
                 <div class="flex items-center justify-between mt-3">
-                  <span class="text-xs text-gray-500">所有者: {{ table.owner }}</span>
+                  <span :class="['text-xs font-mono border border-current px-1', selectedTableId === table.id ? 'text-neo-lime' : 'text-black']">OWNER: {{ table.owner }}</span>
                   <span class="px-2 py-1 bg-indigo-100 text-indigo-800 rounded text-xs font-medium">
                     {{ table.columns }} 列
                   </span>
@@ -108,37 +109,37 @@
         </div>
 
         <!-- 右侧：表格详情 -->
-        <div class="flex-1 flex flex-col m-6 ml-3">
-          <div v-if="selectedTable" class="bg-white rounded-xl shadow flex flex-col overflow-hidden h-full">
+        <div class="flex-1 flex flex-col m-2 ml-3">
+          <div v-if="selectedTable" class="neo-card flex flex-col overflow-hidden h-full rounded-none border-b-4 bg-white">
             <!-- 表格详情头部 -->
-            <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-6 py-4 flex items-center justify-between">
+            <div class="bg-black text-white px-6 py-4 flex items-center justify-between border-b-4 border-black">
               <div>
-                <h2 class="text-2xl font-bold">{{ selectedTable.name }}</h2>
-                <p class="text-indigo-100 text-sm mt-1">{{ selectedTable.description }}</p>
+                <h2 class="text-4xl font-black font-display uppercase tracking-tighter">{{ selectedTable.name }}</h2>
+                <p class="text-neo-lime text-sm mt-1 font-mono font-bold">{{ selectedTable.description }}</p>
               </div>
-              <div class="flex items-center space-x-2">
-                <button @click="startEditingTable" class="text-white hover:bg-indigo-800 rounded-lg px-3 py-2 flex items-center space-x-1 transition">
+              <div class="flex items-center space-x-4">
+                <button @click="startEditingTable" class="neo-btn px-4 py-2 flex items-center space-x-2 text-black hover:bg-white hover:text-black">
                   <iconify-icon icon="mdi:pencil" class="text-xl"></iconify-icon>
-                  <span class="text-sm font-medium">编辑</span>
+                  <span class="text-sm font-black">编辑</span>
                 </button>
-                <button @click="goToDataSync" class="text-white hover:bg-indigo-800 rounded-lg px-3 py-2 flex items-center space-x-1 transition">
+                <button @click="goToDataSync" class="neo-btn px-4 py-2 flex items-center space-x-2 text-black hover:bg-white hover:text-black">
                   <iconify-icon icon="mdi:cloud-sync" class="text-xl"></iconify-icon>
-                  <span class="text-sm font-medium">数据同步</span>
+                  <span class="text-sm font-black">数据同步</span>
                 </button>
-                <button @click="exportTableData(selectedTableId)" class="text-white hover:bg-indigo-800 rounded-lg px-3 py-2 flex items-center space-x-1 transition">
+                <button @click="exportTableData(selectedTableId)" class="neo-btn px-4 py-2 flex items-center space-x-2 text-black hover:bg-white hover:text-black">
                   <iconify-icon icon="mdi:download" class="text-xl"></iconify-icon>
-                  <span class="text-sm font-medium">导出</span>
+                  <span class="text-sm font-black">导出</span>
                 </button>
                 <div class="relative">
-                  <button @click="toggleTableMenu" class="text-white hover:bg-indigo-800 rounded-lg px-3 py-2 flex items-center transition">
+                  <button @click="toggleTableMenu" class="neo-btn-secondary px-3 py-2 flex items-center bg-white text-black">
                     <iconify-icon icon="mdi:dots-vertical" class="text-xl"></iconify-icon>
                   </button>
-                  <div v-if="showTableMenu" class="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg z-10 min-w-48">
-                    <button @click="showTableDetails" class="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 first:rounded-t-lg flex items-center">
+                  <div v-if="showTableMenu" class="absolute right-0 top-full mt-2 bg-white border-4 border-black shadow-neo z-50 min-w-48">
+                    <button @click="showTableDetails" class="w-full text-left px-4 py-3 text-black font-bold hover:bg-neo-lime border-b-2 border-black flex items-center">
                       <iconify-icon icon="mdi:information-outline" class="mr-2"></iconify-icon>
                       查看详情
                     </button>
-                    <button @click="deleteTable" class="w-full text-left px-4 py-2 text-red-700 hover:bg-red-50 last:rounded-b-lg flex items-center">
+                    <button @click="deleteTable" class="w-full text-left px-4 py-3 text-black font-bold hover:bg-neo-pink hover:text-white flex items-center">
                       <iconify-icon icon="mdi:delete-outline" class="mr-2"></iconify-icon>
                       删除表格
                     </button>
@@ -148,45 +149,45 @@
             </div>
 
             <!-- 表格信息 -->
-            <div class="p-6 border-b border-gray-200">
+            <div class="p-6 border-b-4 border-black bg-white">
               <div class="grid grid-cols-3 gap-6">
-                <div>
-                  <p class="text-xs text-gray-600">所有者</p>
-                  <p class="text-lg font-bold text-gray-900 mt-1">{{ selectedTable.owner }}</p>
-                  <p class="text-xs text-gray-600 mt-1">{{ selectedTable.ownerDept }} • {{ selectedTable.ownerPosition }}</p>
+                <div class="border-2 border-black p-4 shadow-neo-sm bg-neo-white">
+                  <p class="text-xs font-black uppercase text-gray-500 mb-1">所有者</p>
+                  <p class="text-xl font-black text-black">{{ selectedTable.owner }}</p>
+                  <p class="text-xs font-bold text-black border-t-2 border-black mt-2 pt-1 inline-block">{{ selectedTable.ownerDept }} • {{ selectedTable.ownerPosition }}</p>
                 </div>
-                <div>
-                  <p class="text-xs text-gray-600">管理员</p>
+                <div class="border-2 border-black p-4 shadow-neo-sm bg-neo-white">
+                  <p class="text-xs font-black uppercase text-gray-500 mb-1">管理员</p>
                   <div class="mt-2 space-y-1">
-                    <p v-for="admin in selectedTable.admins" :key="admin.id" class="text-sm text-gray-900">
-                      {{ admin.name }}
+                    <p v-for="admin in selectedTable.admins" :key="admin.id" class="text-sm font-bold text-black">
+                      > {{ admin.name }}
                     </p>
                   </div>
                 </div>
-                <div>
-                  <p class="text-xs text-gray-600">表格规模</p>
-                  <p class="text-lg font-bold text-gray-900 mt-1">{{ selectedTable.columns }} 列</p>
-                  <p class="text-xs text-gray-600 mt-1">{{ selectedTable.rows }} 行</p>
+                <div class="border-2 border-black p-4 shadow-neo-sm bg-neo-white">
+                  <p class="text-xs font-black uppercase text-gray-500 mb-1">表格规模</p>
+                  <p class="text-xl font-black text-black">{{ selectedTable.columns }} 列</p>
+                  <p class="text-xs font-bold text-black border-t-2 border-black mt-2 pt-1 inline-block">{{ selectedTable.rows }} 行</p>
                 </div>
               </div>
             </div>
 
             <!-- 表格预览/编辑 -->
-            <div v-if="!isEditingTable" class="flex-1 overflow-auto p-6">
-              <table class="w-full text-sm border-collapse">
-                <thead class="bg-gray-100 sticky top-0">
+            <div v-if="!isEditingTable" class="flex-1 overflow-auto p-6 bg-white">
+              <table class="w-full text-sm border-collapse border-4 border-black">
+                <thead class="bg-neo-yellow sticky top-0 z-0">
                   <tr>
                     <th v-for="col in selectedTable.allColumns" :key="col"
-                      class="px-4 py-3 text-left font-semibold text-gray-700 border-b-2 border-gray-200">
+                      class="px-4 py-3 text-left font-black text-black border-2 border-black uppercase text-xs tracking-wider">
                       {{ col }}
                     </th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody class="bg-white">
                   <tr v-for="(row, idx) in getTableData(selectedTableId)" :key="idx"
-                    class="hover:bg-gray-50 border-b border-gray-200">
+                    class="hover:bg-neo-lime transition-colors">
                     <td v-for="col in selectedTable.allColumns" :key="col"
-                      class="px-4 py-3 text-gray-700">
+                      class="px-4 py-3 text-black font-medium border-2 border-black">
                       {{ row[col] || '-' }}
                     </td>
                   </tr>
@@ -195,25 +196,25 @@
             </div>
 
             <!-- 编辑模式 -->
-            <div v-else class="flex-1 overflow-auto p-6 bg-yellow-50">
-              <div class="mb-4 p-4 bg-yellow-100 border border-yellow-300 rounded-lg text-yellow-800 text-sm">
-                <p class="font-medium">编辑模式已启用</p>
-                <p class="text-xs mt-1">点击单元格进行编辑，完成后点击提交审核按钮</p>
+            <div v-else class="flex-1 overflow-auto p-6 bg-neo-yellow pattern-grid-lg">
+              <div class="mb-6 p-4 bg-white border-4 border-black shadow-neo">
+                <p class="font-black text-xl uppercase">EDIT MODE ACTIVE</p>
+                <p class="text-sm font-bold mt-1 bg-black text-white inline-block px-2">点击单元格进行编辑，完成后点击提交审核按钮</p>
               </div>
-              <table class="w-full text-sm border-collapse border border-gray-300 bg-white">
-                <thead class="bg-gray-100 sticky top-0">
+              <table class="w-full text-sm border-collapse border-4 border-black bg-white shadow-neo">
+                <thead class="bg-black text-white sticky top-0">
                   <tr>
                     <th v-for="col in selectedTable.allColumns" :key="col"
-                      class="px-4 py-3 text-left font-semibold text-gray-700 border border-gray-300">
+                      class="px-4 py-3 text-left font-black border-2 border-white uppercase">
                       {{ col }}
                     </th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr v-for="(row, idx) in getTableData(selectedTableId)" :key="idx"
-                    :class="['border-b border-gray-300', changedRows.includes(idx) ? 'bg-yellow-100' : 'bg-white hover:bg-gray-50']">
+                    :class="['border-2 border-black', changedRows.includes(idx) ? 'bg-neo-pink' : 'bg-white hover:bg-gray-100']">
                     <td v-for="col in selectedTable.allColumns" :key="col"
-                      class="px-0 py-0 border border-gray-300">
+                      class="px-0 py-0 border-2 border-black">
                       <input 
                         :value="editingTableData[idx + '-' + col] !== undefined ? editingTableData[idx + '-' + col] : (row[col] || '')"
                         @input="(e) => {
@@ -228,19 +229,20 @@
                             }
                           }
                         }"
-                        class="w-full px-4 py-3 border-0 focus:ring-2 focus:ring-blue-500 focus:outline-none bg-transparent"
+                        class="w-full px-4 py-3 border-0 focus:ring-0 focus:outline-none bg-transparent font-mono font-bold"
+                        :class="changedRows.includes(idx) ? 'text-white placeholder-white' : 'text-black'"
                       />
                     </td>
                   </tr>
                 </tbody>
               </table>
-              <div class="mt-6 flex gap-3">
+              <div class="mt-6 flex gap-4">
                 <button @click="submitTableChangesForReview"
-                  class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition">
+                  class="neo-btn px-6 py-3 text-black hover:bg-white">
                   提交审核
                 </button>
                 <button @click="cancelTableEdit"
-                  class="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 font-medium transition">
+                  class="neo-btn-secondary px-6 py-3 bg-white text-black hover:bg-black hover:text-white">
                   取消编辑
                 </button>
               </div>
@@ -248,11 +250,11 @@
           </div>
 
           <!-- 未选中表格提示 -->
-          <div v-else class="bg-white rounded-xl shadow flex items-center justify-center h-full">
-            <div class="text-center">
-              <iconify-icon icon="mdi:table-search" class="text-6xl text-gray-300 mx-auto mb-4"></iconify-icon>
-              <p class="text-xl font-medium text-gray-900 mb-2">请选择一个表格</p>
-              <p class="text-gray-600">从左侧列表选择表格，查看详细信息</p>
+          <div v-else class="neo-card flex items-center justify-center h-full bg-white">
+            <div class="text-center p-10 border-4 border-black shadow-neo-lg bg-neo-lime">
+              <iconify-icon icon="mdi:table-search" class="text-8xl text-black mx-auto mb-4"></iconify-icon>
+              <p class="text-4xl font-black text-black mb-2 uppercase font-display">SELECT A TABLE</p>
+              <p class="text-black font-bold border-t-4 border-black pt-4 mt-4">从左侧列表选择表格，查看详细信息</p>
             </div>
           </div>
         </div>
@@ -261,34 +263,34 @@
       <!-- 管理标签页 -->
       <template v-else-if="currentTab === 'management'">
         <!-- 左侧筛选面板 -->
-        <aside class="w-80 bg-white rounded-xl shadow flex flex-col m-6 mr-3">
-          <div class="border-b border-gray-200 p-4">
-            <h2 class="text-lg font-bold text-gray-900">管理选项</h2>
+        <aside class="w-80 bg-white border-4 border-black shadow-neo flex flex-col m-6 mr-3">
+          <div class="border-b-4 border-black p-4 bg-neo-yellow">
+            <h2 class="text-xl font-black text-black uppercase">管理选项</h2>
           </div>
 
           <div class="flex-1 overflow-y-auto">
-            <div class="space-y-2 p-3">
+            <div class="space-y-0 p-0">
               <button @click="managementTab = 'applications'"
-                :class="['w-full text-left px-4 py-3 rounded-lg transition',
+                :class="['w-full text-left px-4 py-4 transition-all border-b-2 border-black font-bold uppercase',
                   managementTab === 'applications'
-                    ? 'bg-indigo-100 text-indigo-700 font-medium border-l-4 border-l-indigo-600'
-                    : 'text-gray-700 hover:bg-gray-100']">
+                    ? 'bg-black text-white'
+                    : 'bg-white text-black hover:bg-neo-lime']">
                 <iconify-icon icon="mdi:clipboard-check" class="inline mr-2"></iconify-icon>
                 权限申请审批
               </button>
               <button @click="managementTab = 'tableEdit'"
-                :class="['w-full text-left px-4 py-3 rounded-lg transition',
+                :class="['w-full text-left px-4 py-4 transition-all border-b-2 border-black font-bold uppercase',
                   managementTab === 'tableEdit'
-                    ? 'bg-indigo-100 text-indigo-700 font-medium border-l-4 border-l-indigo-600'
-                    : 'text-gray-700 hover:bg-gray-100']">
+                    ? 'bg-black text-white'
+                    : 'bg-white text-black hover:bg-neo-lime']">
                 <iconify-icon icon="mdi:pencil-multiple" class="inline mr-2"></iconify-icon>
                 编辑变更审核
               </button>
               <button @click="managementTab = 'versions'"
-                :class="['w-full text-left px-4 py-3 rounded-lg transition',
+                :class="['w-full text-left px-4 py-4 transition-all border-b-2 border-black font-bold uppercase',
                   managementTab === 'versions'
-                    ? 'bg-indigo-100 text-indigo-700 font-medium border-l-4 border-l-indigo-600'
-                    : 'text-gray-700 hover:bg-gray-100']">
+                    ? 'bg-black text-white'
+                    : 'bg-white text-black hover:bg-neo-lime']">
                 <iconify-icon icon="mdi:history" class="inline mr-2"></iconify-icon>
                 变更历史
               </button>
@@ -297,33 +299,33 @@
         </aside>
 
         <!-- 右侧内容区域 -->
-        <div class="flex-1 bg-white rounded-xl shadow flex flex-col m-6 ml-3 overflow-hidden">
+        <div class="flex-1 bg-white border-4 border-black shadow-neo flex flex-col m-2 ml-3 overflow-hidden">
           <!-- 权限申请审批 -->
           <template v-if="managementTab === 'applications'">
-            <div class="border-b border-gray-200 p-6">
-              <h2 class="text-2xl font-bold text-gray-900">权限申请审批</h2>
-              <p class="text-gray-600 mt-1">审核所有操作者的权限申请</p>
+            <div class="border-b-4 border-black p-6 bg-neo-yellow">
+              <h2 class="text-3xl font-black text-black uppercase">权限申请审批</h2>
+              <p class="text-black font-bold mt-1">审核所有操作者的权限申请</p>
             </div>
 
-            <div class="flex-1 overflow-auto p-6">
+            <div class="flex-1 overflow-auto p-6 bg-white">
               <div class="space-y-4">
                 <div v-for="app in applications" :key="app.id"
-                  class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition cursor-pointer"
+                  class="border-4 border-black shadow-neo p-4 hover:bg-neo-lime transition-all cursor-pointer bg-white"
                   @click="selectApplication(app)">
                   <div class="flex items-start justify-between mb-3">
                     <div class="flex-1">
-                      <h3 class="font-bold text-gray-900">{{ app.tableName }}</h3>
-                      <p class="text-sm text-gray-600 mt-1">申请人: {{ app.applicant }}</p>
+                      <h3 class="font-black text-xl text-black uppercase">{{ app.tableName }}</h3>
+                      <p class="text-sm text-black font-bold mt-1">申请人: {{ app.applicant }}</p>
                     </div>
-                    <span :class="['px-3 py-1 rounded-full text-xs font-medium',
-                      app.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                      app.status === 'approved' ? 'bg-green-100 text-green-800' :
-                      'bg-red-100 text-red-800']">
+                    <span :class="['px-3 py-1 font-black border-2 border-black text-xs uppercase shadow-neo-sm',
+                      app.status === 'pending' ? 'bg-neo-yellow text-black' :
+                      app.status === 'approved' ? 'bg-neo-lime text-black' :
+                      'bg-neo-pink text-white']">
                       {{ app.status === 'pending' ? '待审批' : app.status === 'approved' ? '已批准' : '已拒绝' }}
                     </span>
                   </div>
-                  <p class="text-sm text-gray-700 mb-2">{{ app.reason }}</p>
-                  <p class="text-xs text-gray-500">{{ app.submitTime }}</p>
+                  <p class="text-sm text-black font-medium mb-2 border-l-4 border-black pl-2">{{ app.reason }}</p>
+                  <p class="text-xs text-black font-mono">{{ app.submitTime }}</p>
                 </div>
               </div>
             </div>
@@ -331,26 +333,26 @@
 
           <!-- 编辑变更审核 -->
           <template v-else-if="managementTab === 'tableEdit'">
-            <div class="border-b border-gray-200 p-6">
-              <h2 class="text-2xl font-bold text-gray-900">编辑变更审核</h2>
-              <p class="text-gray-600 mt-1">审核操作者对表格的编辑变更</p>
+            <div class="border-b-4 border-black p-6 bg-neo-pink">
+              <h2 class="text-3xl font-black text-white uppercase">编辑变更审核</h2>
+              <p class="text-white font-bold mt-1">审核操作者对表格的编辑变更</p>
             </div>
-            <div class="flex-1 overflow-auto p-6">
-              <div class="border border-gray-200 rounded-lg p-4">
-                <p class="text-gray-600 text-center py-12">编辑变更审核功能开发中...</p>
+            <div class="flex-1 overflow-auto p-6 bg-white">
+              <div class="border-4 border-black border-dashed p-12 bg-gray-50">
+                <p class="text-black font-black text-2xl text-center uppercase">Work In Progress...</p>
               </div>
             </div>
           </template>
 
           <!-- 变更历史 -->
           <template v-else-if="managementTab === 'versions'">
-            <div class="border-b border-gray-200 p-6">
-              <h2 class="text-2xl font-bold text-gray-900">变更历史</h2>
-              <p class="text-gray-600 mt-1">查看所有表格的变更历史记录</p>
+            <div class="border-b-4 border-black p-6 bg-black text-white">
+              <h2 class="text-3xl font-black uppercase">变更历史</h2>
+              <p class="text-gray-400 font-bold mt-1">查看所有表格的变更历史记录</p>
             </div>
-            <div class="flex-1 overflow-auto p-6">
-              <div class="border border-gray-200 rounded-lg p-4">
-                <p class="text-gray-600 text-center py-12">变更历史功能开发中...</p>
+            <div class="flex-1 overflow-auto p-6 bg-white">
+              <div class="border-4 border-black border-dashed p-12 bg-gray-50">
+                <p class="text-black font-black text-2xl text-center uppercase">Work In Progress...</p>
               </div>
             </div>
           </template>
@@ -359,51 +361,51 @@
 
       <!-- 权限设置标签页 -->
       <template v-if="currentTab === 'permissions'">
-        <div class="w-1/3 bg-white rounded-xl shadow flex flex-col m-6 mr-3">
-          <div class="border-b border-gray-200 p-4">
-            <h2 class="text-lg font-bold text-gray-900">项目列表</h2>
+        <div class="w-1/3 bg-white border-4 border-black shadow-neo flex flex-col m-2 mr-3">
+          <div class="border-b-4 border-black p-4 bg-neo-yellow">
+            <h2 class="text-xl font-black text-black uppercase">项目列表</h2>
           </div>
           <div class="flex-1 overflow-y-auto">
-            <div class="space-y-2 p-3">
+            <div class="space-y-0 p-0">
               <div v-for="project in projects" :key="project.id"
-                :class="['p-4 rounded-lg border-l-4 transition hover:shadow-md cursor-pointer',
+                :class="['p-4 border-b-2 border-black transition-all cursor-pointer hover:bg-neo-lime',
                   selectedProjectId === project.id
-                    ? 'border-l-indigo-600 bg-indigo-50 border border-indigo-200'
-                    : 'border-l-gray-300 bg-white border border-gray-200 hover:border-gray-300']"
+                    ? 'bg-black text-white'
+                    : 'bg-white text-black']"
                 @click="selectedProjectId = project.id">
-                <h3 class="font-medium text-gray-900">{{ project.name }}</h3>
-                <p class="text-xs text-gray-600 mt-1">{{ project.department }}</p>
+                <h3 class="font-black text-lg uppercase">{{ project.name }}</h3>
+                <p class="text-xs font-bold mt-1 opacity-80">{{ project.department }}</p>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="flex-1 bg-white rounded-xl shadow flex flex-col m-6 ml-3">
-          <div class="border-b border-gray-200 p-6 flex items-center justify-between">
+        <div class="flex-1 bg-white border-4 border-black shadow-neo flex flex-col m-2 ml-3">
+          <div class="border-b-4 border-black p-6 flex items-center justify-between bg-white">
             <div>
-              <h2 class="text-2xl font-bold text-gray-900">项目权限设置</h2>
+              <h2 class="text-3xl font-black text-black uppercase">项目权限设置</h2>
             </div>
             <!-- 通知气泡 -->
             <div v-if="showPermissionBubble && pendingPermissionRequests > 0" class="relative">
-              <div class="absolute -top-2 -right-2 inline-flex items-center justify-center px-3 py-1.5 text-xs font-bold leading-none text-white bg-blue-600 rounded-full shadow-lg">
+              <div class="absolute -top-4 -right-2 inline-flex items-center justify-center px-4 py-2 text-xs font-black leading-none text-white bg-neo-pink border-2 border-black shadow-neo-sm transform rotate-3">
                 <iconify-icon icon="mdi:bell" class="mr-1"></iconify-icon>
                 有 {{ pendingPermissionRequests }} 个待审批的权限请求
               </div>
             </div>
           </div>
-          <div class="flex-1 overflow-auto p-6 space-y-6">
+          <div class="flex-1 overflow-auto p-6 space-y-6 bg-white">
             <div>
-              <h3 class="font-medium text-gray-900 mb-3">项目成员管理</h3>
-              <div class="bg-gray-50 rounded-lg p-4">
+              <h3 class="font-black text-black text-xl mb-3 border-l-8 border-neo-lime pl-2 uppercase">项目成员管理</h3>
+              <div class="border-2 border-black p-4 bg-neo-white shadow-neo-sm">
                 <div class="flex items-center justify-between mb-4">
-                  <p class="text-sm font-medium">成员列表</p>
-                  <button class="text-blue-600 text-sm font-medium">添加成员</button>
+                  <p class="text-sm font-bold uppercase">成员列表</p>
+                  <button class="text-black text-sm font-black border-2 border-black px-2 py-1 bg-neo-lime hover:bg-white shadow-neo-sm uppercase">添加成员</button>
                 </div>
                 <div class="flex flex-wrap gap-3">
-                  <div v-for="member in projectMembers" :key="member.id" class="flex items-center bg-white px-3 py-2 rounded-lg border border-gray-200">
-                    <div class="bg-gray-200 border-2 border-dashed rounded-xl w-8 h-8 mr-2"></div>
-                    <span class="mr-2">{{ member.name }}</span>
-                    <span :class="['text-xs px-2 py-0.5 rounded', member.roleClass]">
+                  <div v-for="member in projectMembers" :key="member.id" class="flex items-center bg-white px-3 py-2 border-2 border-black shadow-neo-sm">
+                    <div class="bg-black border-2 border-white rounded-none w-8 h-8 mr-2"></div>
+                    <span class="mr-2 font-bold">{{ member.name }}</span>
+                    <span :class="['text-xs px-2 py-0.5 font-bold border border-black', member.roleClass]">
                       {{ member.role }}
                     </span>
                   </div>
@@ -412,31 +414,31 @@
             </div>
 
             <div>
-              <h3 class="font-medium text-gray-900 mb-3">权限角色配置</h3>
-              <div class="overflow-x-auto">
+              <h3 class="font-black text-black text-xl mb-3 border-l-8 border-neo-lime pl-2 uppercase">权限角色配置</h3>
+              <div class="overflow-x-auto border-4 border-black shadow-neo">
                 <table class="w-full text-sm">
                   <thead>
-                    <tr class="bg-gray-100 text-left text-gray-700">
-                      <th class="px-4 py-3">功能权限</th>
-                      <th class="px-4 py-3">管理员</th>
-                      <th class="px-4 py-3">编辑者</th>
-                      <th class="px-4 py-3">查看者</th>
+                    <tr class="bg-black text-white text-left uppercase">
+                      <th class="px-4 py-3 font-black">功能权限</th>
+                      <th class="px-4 py-3 font-black">管理员</th>
+                      <th class="px-4 py-3 font-black">编辑者</th>
+                      <th class="px-4 py-3 font-black">查看者</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="perm in permissions" :key="perm.id" class="border-b border-gray-200 hover:bg-gray-50">
-                      <td class="px-4 py-3">{{ perm.name }}</td>
-                      <td class="px-4 py-3">
-                        <iconify-icon v-if="perm.admin" class="text-green-500 text-xl" icon="mdi:check-circle"></iconify-icon>
-                        <iconify-icon v-else class="text-gray-300 text-xl" icon="mdi:close-circle"></iconify-icon>
+                    <tr v-for="perm in permissions" :key="perm.id" class="border-b-2 border-black hover:bg-neo-lime bg-white">
+                      <td class="px-4 py-3 font-bold border-r-2 border-black">{{ perm.name }}</td>
+                      <td class="px-4 py-3 border-r-2 border-black text-center">
+                        <iconify-icon v-if="perm.admin" class="text-black text-xl" icon="mdi:check-bold"></iconify-icon>
+                        <iconify-icon v-else class="text-gray-300 text-xl" icon="mdi:close-thick"></iconify-icon>
                       </td>
-                      <td class="px-4 py-3">
-                        <iconify-icon v-if="perm.editor" class="text-green-500 text-xl" icon="mdi:check-circle"></iconify-icon>
-                        <iconify-icon v-else class="text-gray-300 text-xl" icon="mdi:close-circle"></iconify-icon>
+                      <td class="px-4 py-3 border-r-2 border-black text-center">
+                        <iconify-icon v-if="perm.editor" class="text-black text-xl" icon="mdi:check-bold"></iconify-icon>
+                        <iconify-icon v-else class="text-gray-300 text-xl" icon="mdi:close-thick"></iconify-icon>
                       </td>
-                      <td class="px-4 py-3">
-                        <iconify-icon v-if="perm.viewer" class="text-green-500 text-xl" icon="mdi:check-circle"></iconify-icon>
-                        <iconify-icon v-else class="text-gray-300 text-xl" icon="mdi:close-circle"></iconify-icon>
+                      <td class="px-4 py-3 text-center">
+                        <iconify-icon v-if="perm.viewer" class="text-black text-xl" icon="mdi:check-bold"></iconify-icon>
+                        <iconify-icon v-else class="text-gray-300 text-xl" icon="mdi:close-thick"></iconify-icon>
                       </td>
                     </tr>
                   </tbody>
@@ -449,27 +451,27 @@
 
       <!-- 权限申请审批标签页 -->
       <template v-if="currentTab === 'applications'">
-        <div class="w-80 bg-white rounded-xl shadow flex flex-col m-6 mr-3">
-          <div class="border-b border-gray-200 p-4">
-            <h2 class="text-lg font-bold text-gray-900">申请列表</h2>
-            <p class="text-xs text-gray-600 mt-1">共 {{ applications.length }} 个</p>
+        <div class="w-80 bg-white border-4 border-black shadow-neo flex flex-col m-2 mr-3">
+          <div class="border-b-4 border-black p-4 bg-neo-yellow">
+            <h2 class="text-xl font-black text-black uppercase">申请列表</h2>
+            <p class="text-xs font-bold text-black border-2 border-black bg-white inline-block px-1 mt-1">共 {{ applications.length }} 个</p>
           </div>
           <div class="flex-1 overflow-y-auto">
-            <div class="space-y-2 p-3">
+            <div class="space-y-0 p-0">
               <div v-for="app in applications" :key="app.id"
-                :class="['p-3 rounded-lg border-l-4 transition hover:shadow-md cursor-pointer',
+                :class="['p-4 border-b-2 border-black transition-all cursor-pointer hover:bg-neo-lime',
                   selectedApplication?.id === app.id
-                    ? 'border-l-blue-600 bg-blue-50 border border-blue-200'
-                    : 'border-l-gray-300 bg-white border border-gray-200 hover:border-gray-300']"
+                    ? 'bg-black text-white'
+                    : 'bg-white text-black']"
                 @click="selectedApplication = app">
-                <h3 class="font-medium text-gray-900 text-sm">{{ app.tableName }}</h3>
-                <p class="text-xs text-gray-600 mt-1">申请人: {{ app.applicant }}</p>
+                <h3 class="font-black text-sm uppercase">{{ app.tableName }}</h3>
+                <p class="text-xs font-bold mt-1 opacity-80">申请人: {{ app.applicant }}</p>
                 <div class="flex items-center justify-between mt-2">
-                  <p class="text-xs text-gray-500">{{ app.submitTime.split(' ')[0] }}</p>
-                  <span :class="['px-2 py-0.5 rounded text-xs font-medium',
-                    app.status === 'approved' ? 'bg-green-100 text-green-800' :
-                    app.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                    'bg-yellow-100 text-yellow-800']">
+                  <p class="text-xs font-mono opacity-60">{{ app.submitTime.split(' ')[0] }}</p>
+                  <span :class="['px-2 py-0.5 border border-current text-xs font-bold uppercase',
+                    app.status === 'approved' ? 'bg-neo-lime text-black' :
+                    app.status === 'rejected' ? 'bg-neo-pink text-white' :
+                    'bg-neo-yellow text-black']">
                     {{ app.status === 'approved' ? '已批准' : app.status === 'rejected' ? '已拒绝' : '待审批' }}
                   </span>
                 </div>
@@ -478,66 +480,68 @@
           </div>
         </div>
 
-        <div class="flex-1 bg-white rounded-xl shadow flex flex-col m-6 ml-3">
+        <div class="flex-1 bg-white border-4 border-black shadow-neo flex flex-col m-2 ml-3">
           <div v-if="selectedApplication" class="h-full flex flex-col">
-            <div class="border-b border-gray-200 p-6">
-              <h2 class="text-2xl font-bold text-gray-900">申请详情</h2>
+            <div class="border-b-4 border-black p-6 bg-white">
+              <h2 class="text-3xl font-black text-black uppercase">申请详情</h2>
             </div>
-            <div class="flex-1 overflow-auto p-6 space-y-6">
+            <div class="flex-1 overflow-auto p-6 space-y-6 bg-white">
               <div>
-                <h3 class="text-sm font-medium text-gray-500 mb-2">申请表格</h3>
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <p class="text-lg font-bold text-gray-900">{{ selectedApplication.tableName }}</p>
+                <h3 class="text-sm font-black text-black mb-2 uppercase border-b-2 border-black inline-block">申请表格</h3>
+                <div class="bg-neo-white border-2 border-black p-4 shadow-neo-sm">
+                  <p class="text-xl font-black text-black">{{ selectedApplication.tableName }}</p>
                 </div>
               </div>
               <div>
-                <h3 class="text-sm font-medium text-gray-500 mb-2">申请人</h3>
+                <h3 class="text-sm font-black text-black mb-2 uppercase border-b-2 border-black inline-block">申请人</h3>
                 <div class="flex items-center">
-                  <div class="bg-gray-200 border-2 border-dashed rounded-xl w-10 h-10 mr-3"></div>
+                  <div class="bg-black text-white flex items-center justify-center font-bold border-2 border-black w-10 h-10 mr-3">
+                    <iconify-icon icon="mdi:account" class="text-2xl"></iconify-icon>
+                  </div>
                   <div>
-                    <p class="font-medium text-gray-900">{{ selectedApplication.applicant }}</p>
+                    <p class="font-black text-lg text-black uppercase">{{ selectedApplication.applicant }}</p>
                   </div>
                 </div>
               </div>
               <div>
-                <h3 class="text-sm font-medium text-gray-500 mb-2">申请原因</h3>
-                <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                  <p class="text-gray-700">{{ selectedApplication.reason }}</p>
+                <h3 class="text-sm font-black text-black mb-2 uppercase border-b-2 border-black inline-block">申请原因</h3>
+                <div class="bg-neo-yellow border-2 border-black p-4 shadow-neo-sm">
+                  <p class="text-black font-bold">{{ selectedApplication.reason }}</p>
                 </div>
               </div>
               <div>
-                <h3 class="text-sm font-medium text-gray-500 mb-2">申请时间</h3>
-                <p class="text-gray-700">{{ selectedApplication.submitTime }}</p>
+                <h3 class="text-sm font-black text-black mb-2 uppercase border-b-2 border-black inline-block">申请时间</h3>
+                <p class="text-black font-mono font-bold">{{ selectedApplication.submitTime }}</p>
               </div>
 
-              <div v-if="selectedApplication.status === 'pending'" class="pt-4 border-t border-gray-200">
-                <h3 class="text-sm font-medium text-gray-500 mb-3">审批操作</h3>
+              <div v-if="selectedApplication.status === 'pending'" class="pt-4 border-t-4 border-black">
+                <h3 class="text-sm font-black text-black mb-3 uppercase">审批操作</h3>
                 <textarea v-model="approvalComment"
                   placeholder="请输入审批意见（至少20字）..."
-                  class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none h-24 mb-3"
+                  class="w-full px-3 py-2.5 border-4 border-black font-bold focus:outline-none bg-white text-sm resize-none h-24 mb-3 shadow-neo-sm"
                 ></textarea>
-                <p class="text-xs text-gray-500 mb-4">{{ approvalComment.length }}/200 字</p>
-                <div class="flex gap-3">
+                <p class="text-xs text-black font-bold mb-4 bg-neo-lime inline-block px-1 border border-black">{{ approvalComment.length }}/200 字</p>
+                <div class="flex gap-4">
                   <button @click="rejectApplication"
-                    class="flex-1 px-4 py-3 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 font-medium transition">
+                    class="flex-1 px-4 py-3 bg-white border-2 border-black shadow-neo text-black font-black uppercase hover:bg-neo-pink hover:text-white transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-none">
                     拒绝
                   </button>
                   <button @click="approveApplication"
-                    class="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition">
+                    class="flex-1 px-4 py-3 bg-neo-lime border-2 border-black shadow-neo text-black font-black uppercase hover:bg-white transition-transform active:translate-x-[2px] active:translate-y-[2px] active:shadow-none">
                     批准
                   </button>
                 </div>
               </div>
-              <div v-else class="text-center py-8">
-                <p class="text-gray-600">此申请已处理，不可再进行操作</p>
+              <div v-else class="text-center py-8 border-4 border-black shadow-neo bg-gray-100">
+                <p class="text-black font-black uppercase">此申请已处理，不可再进行操作</p>
               </div>
             </div>
           </div>
-          <div v-else class="flex items-center justify-center h-full">
-            <div class="text-center">
-              <iconify-icon icon="mdi:clipboard-search" class="text-6xl text-gray-300 mx-auto mb-4"></iconify-icon>
-              <p class="text-xl font-medium text-gray-900 mb-2">请选择一个申请</p>
-              <p class="text-gray-600">从左侧列表选择申请，查看详细信息</p>
+          <div v-else class="flex items-center justify-center h-full bg-white">
+            <div class="text-center p-8 border-4 border-black bg-neo-lime shadow-neo-lg">
+              <iconify-icon icon="mdi:clipboard-search" class="text-6xl text-black mx-auto mb-4"></iconify-icon>
+              <p class="text-3xl font-black text-black mb-2 uppercase">SELECT AN APPLICATION</p>
+              <p class="text-black font-bold border-t-2 border-black pt-2 mt-2">从左侧列表选择申请，查看详细信息</p>
             </div>
           </div>
         </div>
@@ -546,39 +550,39 @@
       <!-- 数据同步标签页（Pull Request风格） -->
       <template v-if="currentTab === 'dataSync'">
         <!-- 左侧：PR列表 -->
-        <div class="w-80 bg-white rounded-xl shadow flex flex-col m-6 mr-3">
-          <div class="border-b border-gray-200 p-4">
-            <h2 class="text-lg font-bold text-gray-900">编辑请求</h2>
-            <p class="text-xs text-gray-600 mt-1">共 {{ pullRequests.length }} 个请求</p>
+        <div class="w-80 bg-white border-4 border-black shadow-neo flex flex-col m-2 mr-3">
+          <div class="border-b-4 border-black p-4 bg-neo-yellow">
+            <h2 class="text-xl font-black text-black uppercase">编辑请求</h2>
+            <p class="text-xs font-bold text-black border-2 border-black bg-white inline-block px-1 mt-1">共 {{ pullRequests.length }} 个请求</p>
           </div>
 
           <!-- 搜索和筛选 -->
-          <div class="border-b border-gray-200 p-4 space-y-3">
+          <div class="border-b-4 border-black p-4 space-y-3 bg-white">
             <div class="relative">
-              <input v-model="prSearchQuery" type="text" placeholder="搜索PR..."
-                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-sm" />
-              <iconify-icon icon="mdi:magnify" class="absolute right-3 top-2.5 text-gray-500"></iconify-icon>
+              <input v-model="prSearchQuery" type="text" placeholder="SEARCH PR..."
+                class="neo-input w-full px-4 py-2 bg-white text-black font-bold placeholder-gray-500" />
+              <iconify-icon icon="mdi:magnify" class="absolute right-3 top-2.5 text-black font-bold"></iconify-icon>
             </div>
             <div class="flex gap-2">
               <button @click="prStatusFilter = null"
-                :class="['px-3 py-1 rounded-full text-xs font-medium transition',
+                :class="['px-3 py-1 font-black border-2 border-black text-xs uppercase transition-all',
                   prStatusFilter === null
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200']">
+                    ? 'bg-black text-white shadow-none translate-x-[1px] translate-y-[1px]'
+                    : 'bg-white text-black shadow-neo-sm hover:bg-gray-100']">
                 全部
               </button>
               <button @click="prStatusFilter = 'pending'"
-                :class="['px-3 py-1 rounded-full text-xs font-medium transition',
+                :class="['px-3 py-1 font-black border-2 border-black text-xs uppercase transition-all',
                   prStatusFilter === 'pending'
-                    ? 'bg-yellow-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200']">
+                    ? 'bg-neo-yellow text-black shadow-none translate-x-[1px] translate-y-[1px]'
+                    : 'bg-white text-black shadow-neo-sm hover:bg-neo-yellow']">
                 待审批
               </button>
               <button @click="prStatusFilter = 'merged'"
-                :class="['px-3 py-1 rounded-full text-xs font-medium transition',
+                :class="['px-3 py-1 font-black border-2 border-black text-xs uppercase transition-all',
                   prStatusFilter === 'merged'
-                    ? 'bg-green-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200']">
+                    ? 'bg-neo-lime text-black shadow-none translate-x-[1px] translate-y-[1px]'
+                    : 'bg-white text-black shadow-neo-sm hover:bg-neo-lime']">
                 已合并
               </button>
             </div>
@@ -586,29 +590,29 @@
 
           <!-- PR列表 -->
           <div class="flex-1 overflow-y-auto">
-            <div class="space-y-2 p-3">
-              <div v-if="filteredPullRequests.length === 0" class="p-4 text-center text-gray-500 text-sm">
+            <div class="space-y-0 p-0">
+              <div v-if="filteredPullRequests.length === 0" class="p-4 text-center text-black font-bold uppercase">
                 暂无编辑请求
               </div>
               <div v-for="pr in filteredPullRequests" :key="pr.id"
-                :class="['p-4 rounded-lg border-l-4 transition hover:shadow-md cursor-pointer',
+                :class="['p-4 border-b-2 border-black transition-all cursor-pointer hover:bg-neo-lime',
                   selectedPRId === pr.id
-                    ? 'border-l-indigo-600 bg-indigo-50 border border-indigo-200'
-                    : 'border-l-gray-300 bg-white border border-gray-200 hover:border-gray-300']"
+                    ? 'bg-black text-white'
+                    : 'bg-white text-black']"
                 @click="selectedPRId = pr.id">
                 <div class="flex items-start justify-between mb-2">
-                  <h3 class="font-medium text-gray-900 text-sm">{{ pr.tableName }}</h3>
-                  <span :class="['px-2 py-0.5 rounded text-xs font-medium',
-                    pr.status === 'merged' ? 'bg-green-100 text-green-800' :
-                    pr.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-red-100 text-red-800']">
+                  <h3 class="font-black text-sm uppercase">{{ pr.tableName }}</h3>
+                  <span :class="['px-2 py-0.5 border border-current text-xs font-black uppercase',
+                    pr.status === 'merged' ? 'bg-neo-lime text-black' :
+                    pr.status === 'pending' ? 'bg-neo-yellow text-black' :
+                    'bg-neo-pink text-white']">
                     {{ pr.status === 'merged' ? '已合并' : pr.status === 'pending' ? '待审批' : '已拒绝' }}
                   </span>
                 </div>
-                <p class="text-xs text-gray-600 mb-2 line-clamp-2">{{ pr.description }}</p>
+                <p class="text-xs font-bold mb-2 line-clamp-2 opacity-80">{{ pr.description }}</p>
                 <div class="flex items-center justify-between">
-                  <span class="text-xs text-gray-500">提交人: {{ pr.submitter }}</span>
-                  <span class="text-xs text-gray-500">{{ formatDate(pr.submitTime) }}</span>
+                  <span class="text-xs font-mono opacity-70">BY: {{ pr.submitter }}</span>
+                  <span class="text-xs font-mono opacity-70">{{ formatDate(pr.submitTime) }}</span>
                 </div>
               </div>
             </div>
@@ -616,99 +620,99 @@
         </div>
 
         <!-- 右侧：PR详情和diff -->
-        <div class="flex-1 bg-white rounded-xl shadow flex flex-col m-6 ml-3">
+        <div class="flex-1 bg-white border-4 border-black shadow-neo flex flex-col m-2 ml-3">
           <div v-if="selectedPRId !== null && selectedPR" class="h-full flex flex-col">
             <!-- 头部信息 -->
-            <div class="border-b border-gray-200 p-6">
+            <div class="border-b-4 border-black p-6 bg-white">
               <div class="flex items-start justify-between mb-4">
                 <div>
-                  <h2 class="text-2xl font-bold text-gray-900">{{ selectedPR.tableName }}</h2>
-                  <p class="text-sm text-gray-600 mt-2">编辑请求 #{{ selectedPR.id }}</p>
+                  <h2 class="text-3xl font-black text-black uppercase">{{ selectedPR.tableName }}</h2>
+                  <p class="text-sm font-bold text-black border-2 border-black bg-neo-yellow inline-block px-1 mt-2">REQUEST #{{ selectedPR.id }}</p>
                 </div>
-                <span :class="['px-3 py-1.5 rounded-full font-medium text-sm',
-                  selectedPR.status === 'merged' ? 'bg-green-100 text-green-800' :
-                  selectedPR.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                  'bg-red-100 text-red-800']">
+                <span :class="['px-4 py-2 border-2 border-black shadow-neo-sm font-black uppercase text-sm',
+                  selectedPR.status === 'merged' ? 'bg-neo-lime text-black' :
+                  selectedPR.status === 'pending' ? 'bg-neo-yellow text-black' :
+                  'bg-neo-pink text-white']">
                   {{ selectedPR.status === 'merged' ? '已合并' : selectedPR.status === 'pending' ? '待审批' : '已拒绝' }}
                 </span>
               </div>
               <div class="flex items-center space-x-6 text-sm">
-                <div>
-                  <p class="text-gray-600">提交人</p>
-                  <p class="font-medium text-gray-900">{{ selectedPR.submitter }}</p>
+                <div class="border-l-4 border-black pl-2">
+                  <p class="text-gray-500 font-bold uppercase text-xs">提交人</p>
+                  <p class="font-black text-lg text-black">{{ selectedPR.submitter }}</p>
                 </div>
-                <div>
-                  <p class="text-gray-600">提交时间</p>
-                  <p class="font-medium text-gray-900">{{ selectedPR.submitTime }}</p>
+                <div class="border-l-4 border-black pl-2">
+                  <p class="text-gray-500 font-bold uppercase text-xs">提交时间</p>
+                  <p class="font-black text-lg text-black">{{ selectedPR.submitTime }}</p>
                 </div>
-                <div>
-                  <p class="text-gray-600">变更数</p>
-                  <p class="font-medium text-gray-900">{{ selectedPR.changes.length }} 项</p>
+                <div class="border-l-4 border-black pl-2">
+                  <p class="text-gray-500 font-bold uppercase text-xs">变更数</p>
+                  <p class="font-black text-lg text-black">{{ selectedPR.changes.length }} 项</p>
                 </div>
               </div>
             </div>
 
             <!-- 内容区 -->
-            <div class="flex-1 overflow-auto p-6">
+            <div class="flex-1 overflow-auto p-6 bg-white">
               <div class="space-y-6">
                 <!-- 概述 -->
                 <div>
-                  <h3 class="text-lg font-bold text-gray-900 mb-3">变更说明</h3>
-                  <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                    <p class="text-gray-700 whitespace-pre-wrap">{{ selectedPR.description }}</p>
+                  <h3 class="text-lg font-black text-black mb-3 uppercase border-l-8 border-neo-pink pl-2">变更说明</h3>
+                  <div class="bg-neo-white border-2 border-black p-4 shadow-neo-sm">
+                    <p class="text-black font-bold whitespace-pre-wrap">{{ selectedPR.description }}</p>
                   </div>
                 </div>
 
                 <!-- 变更详情 -->
                 <div>
-                  <h3 class="text-lg font-bold text-gray-900 mb-3">变更详情</h3>
+                  <h3 class="text-lg font-black text-black mb-3 uppercase border-l-8 border-neo-pink pl-2">变更详情</h3>
                   <div class="space-y-3">
                     <div v-for="(change, index) in selectedPR.changes" :key="index"
-                      class="bg-gray-50 border border-gray-200 rounded-lg p-4 space-y-2">
+                      class="bg-white border-2 border-black p-4 space-y-2 shadow-neo-sm">
                       <div class="flex items-center justify-between">
                         <div class="flex items-center space-x-3">
                           <span v-if="change.type === 'modify'"
-                            class="inline-block px-2 py-0.5 bg-blue-100 text-blue-800 text-xs font-medium rounded">
+                            class="inline-block px-2 py-0.5 bg-neo-yellow border border-black text-black text-xs font-black uppercase rounded-none">
                             修改
                           </span>
                           <span v-else-if="change.type === 'add'"
-                            class="inline-block px-2 py-0.5 bg-green-100 text-green-800 text-xs font-medium rounded">
+                            class="inline-block px-2 py-0.5 bg-neo-lime border border-black text-black text-xs font-black uppercase rounded-none">
                             新增
                           </span>
                           <span v-else
-                            class="inline-block px-2 py-0.5 bg-red-100 text-red-800 text-xs font-medium rounded">
+                            class="inline-block px-2 py-0.5 bg-neo-pink border border-black text-white text-xs font-black uppercase rounded-none">
                             删除
                           </span>
-                          <span class="text-sm text-gray-600">
-                            <strong>{{ change.column }}</strong>
-                            <span v-if="change.type === 'modify'"> (第 {{ change.rowIdx + 1 }} 行)</span>
+                          <span class="text-sm text-black font-bold">
+                            <strong class="uppercase">{{ change.column }}</strong>
+                            <span v-if="change.type === 'modify'" class="font-mono text-xs ml-1 bg-gray-200 px-1 border border-black">ROW {{ change.rowIdx + 1 }}</span>
                           </span>
                         </div>
                       </div>
-                      <div v-if="change.type === 'modify'" class="flex items-center space-x-4 text-sm">
+                      <div v-if="change.type === 'modify'" class="flex items-center space-x-4 text-sm mt-2">
                         <div class="flex-1">
-                          <p class="text-gray-600 text-xs mb-1">原值</p>
-                          <div class="bg-red-50 border border-red-200 rounded px-3 py-2 text-gray-900 font-mono text-sm">
+                          <p class="text-gray-500 font-bold text-xs mb-1 uppercase">OLD VALUE</p>
+                          <div class="bg-gray-100 border-2 border-black px-3 py-2 text-gray-500 font-mono text-sm line-through">
                             {{ change.oldValue || '(空)' }}
                           </div>
                         </div>
-                        <iconify-icon icon="mdi:arrow-right" class="text-gray-400 text-xl"></iconify-icon>
+                        <iconify-icon icon="mdi:arrow-right-thick" class="text-black text-2xl"></iconify-icon>
                         <div class="flex-1">
-                          <p class="text-gray-600 text-xs mb-1">新值</p>
-                          <div class="bg-green-50 border border-green-200 rounded px-3 py-2 text-gray-900 font-mono text-sm">
+                          <p class="text-black font-bold text-xs mb-1 uppercase">NEW VALUE</p>
+                          <div class="bg-neo-lime border-2 border-black px-3 py-2 text-black font-black font-mono text-sm">
                             {{ change.newValue || '(空)' }}
                           </div>
                         </div>
                       </div>
-                      <div v-else-if="change.type === 'add'" class="text-sm">
-                        <p class="text-gray-600 text-xs mb-1">新增内容</p>
-                        <div class="bg-green-50 border border-green-200 rounded px-3 py-2 text-gray-900 font-mono">
+                      <div v-else-if="change.type === 'add'" class="text-sm border-t-2 border-black pt-2 mt-2">
+                        <p class="text-black font-bold text-xs mb-1 uppercase">新增内容</p>
+                        <div class="bg-neo-lime border-2 border-black px-3 py-2 text-black font-black font-mono shadow-neo-sm">
                           {{ change.newValue || '(新行)' }}
                         </div>
                       </div>
-                      <div v-else class="text-sm">
-                        <p class="text-gray-600 text-xs mb-1">删除内容</p>
-                        <div class="bg-red-50 border border-red-200 rounded px-3 py-2 text-gray-900 font-mono">
+                      <div v-else class="text-sm border-t-2 border-black pt-2 mt-2">
+                        <p class="text-black font-bold text-xs mb-1 uppercase">删除内容</p>
+                        <div class="bg-neo-pink border-2 border-black px-3 py-2 text-white font-black font-mono shadow-neo-sm">
                           {{ change.oldValue || '(整行)' }}
                         </div>
                       </div>
@@ -719,26 +723,26 @@
             </div>
 
             <!-- 操作按钮 -->
-            <div v-if="selectedPR.status === 'pending'" class="border-t border-gray-200 p-6 flex gap-3 bg-gray-50">
+            <div v-if="selectedPR.status === 'pending'" class="border-t-4 border-black p-6 flex gap-4 bg-white">
               <button @click="mergePullRequest"
-                class="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium transition flex items-center justify-center space-x-2">
-                <iconify-icon icon="mdi:check" class="text-xl"></iconify-icon>
+                class="flex-1 px-4 py-3 bg-neo-lime border-2 border-black shadow-neo text-black font-black uppercase hover:bg-white transition-all transform active:shadow-none active:translate-x-[2px] active:translate-y-[2px] flex items-center justify-center space-x-2">
+                <iconify-icon icon="mdi:check-bold" class="text-xl"></iconify-icon>
                 <span>合并</span>
               </button>
               <button @click="rejectPullRequest"
-                class="flex-1 px-4 py-3 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 font-medium transition flex items-center justify-center space-x-2">
-                <iconify-icon icon="mdi:close" class="text-xl"></iconify-icon>
+                class="flex-1 px-4 py-3 bg-neo-pink border-2 border-black shadow-neo text-white font-black uppercase hover:bg-white hover:text-black transition-all transform active:shadow-none active:translate-x-[2px] active:translate-y-[2px] flex items-center justify-center space-x-2">
+                <iconify-icon icon="mdi:close-thick" class="text-xl"></iconify-icon>
                 <span>拒绝</span>
               </button>
             </div>
           </div>
 
           <!-- 空状态 -->
-          <div v-else class="flex items-center justify-center h-full">
-            <div class="text-center">
-              <iconify-icon icon="mdi:git-branch" class="text-6xl text-gray-300 mx-auto mb-4"></iconify-icon>
-              <p class="text-xl font-medium text-gray-900 mb-2">选择一个编辑请求</p>
-              <p class="text-gray-600">从左侧列表选择请求，查看详细的变更信息</p>
+          <div v-else class="flex items-center justify-center h-full bg-white">
+            <div class="text-center p-8 border-4 border-black bg-neo-yellow shadow-neo-lg">
+              <iconify-icon icon="mdi:git-branch" class="text-6xl text-black mx-auto mb-4"></iconify-icon>
+              <p class="text-3xl font-black text-black mb-2 uppercase">SELECT A REQUEST</p>
+              <p class="text-black font-bold border-t-2 border-black pt-2 mt-2">从左侧列表选择请求，查看详细的变更信息</p>
             </div>
           </div>
         </div>

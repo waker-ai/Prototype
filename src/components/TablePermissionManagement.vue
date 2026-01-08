@@ -1,39 +1,39 @@
 <template>
-  <div class="bg-white rounded-xl shadow">
-    <div class="border-b border-gray-200 p-6">
-      <h2 class="text-xl font-bold text-gray-900">表格访问权限管理</h2>
-      <p class="text-sm text-gray-600 mt-1">管理员工对各个表格的访问权限和权限请求</p>
+  <div class="bg-white rounded-none border-4 border-black shadow-neo animate-fade-in-up">
+    <div class="border-b-4 border-black p-6 bg-neo-yellow">
+      <h2 class="text-2xl font-black text-black uppercase tracking-tight">表格访问权限管理</h2>
+      <p class="text-sm font-bold text-black mt-1 bg-white inline-block px-2 border-2 border-black">管理员工对各个表格的访问权限和权限请求</p>
     </div>
 
     <div class="flex">
       <!-- 左侧：表格列表 -->
-      <div class="w-1/3 border-r border-gray-200 p-6">
-        <h3 class="font-semibold text-gray-900 mb-4">表格列表</h3>
-        <div class="space-y-2">
+      <div class="w-1/3 border-r-4 border-black p-6 bg-neo-white">
+        <h3 class="font-black text-xl text-black uppercase mb-4 border-b-4 border-black inline-block">表格列表</h3>
+        <div class="space-y-4">
           <button v-for="table in tables" :key="table.id"
             @click="selectedTableId = table.id"
-            :class="['w-full text-left p-3 rounded-lg transition', 
+            :class="['w-full text-left p-4 rounded-none transition-all border-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-neo', 
               selectedTableId === table.id 
-                ? 'bg-indigo-50 border border-indigo-600' 
-                : 'border border-gray-200 hover:border-gray-300']">
-            <div class="font-medium text-gray-900">{{ table.name }}</div>
-            <div class="text-xs text-gray-600 mt-1">{{ table.accessCount }} 人有权限</div>
+                ? 'bg-neo-blue border-black text-white' 
+                : 'bg-white border-black text-black hover:bg-gray-50']">
+            <div class="font-black text-lg uppercase">{{ table.name }}</div>
+            <div class="text-xs font-bold mt-1 uppercase" :class="selectedTableId === table.id ? 'text-white' : 'text-gray-600'">{{ table.accessCount }} 人有权限</div>
           </button>
         </div>
 
-        <div class="mt-6 pt-6 border-t border-gray-200">
-          <h3 class="font-semibold text-gray-900 mb-3">待处理权限申请</h3>
-          <div class="space-y-2">
+        <div class="mt-8 pt-6 border-t-4 border-black">
+          <h3 class="font-black text-xl text-black uppercase mb-4 border-b-4 border-black inline-block">待处理权限申请</h3>
+          <div class="space-y-4">
             <div v-for="req in pendingRequests" :key="req.id"
               @click="selectRequest(req.id)"
-              :class="['p-3 rounded-lg border cursor-pointer transition',
-                selectedRequestId === req.id ? 'border-orange-600 bg-orange-50' : 'border-gray-200 hover:border-orange-400']">
+              :class="['p-4 border-4 cursor-pointer transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:-translate-y-1 hover:shadow-neo',
+                selectedRequestId === req.id ? 'border-black bg-neo-pink text-black' : 'border-black bg-white hover:bg-orange-50']">
               <div class="flex items-start justify-between">
                 <div>
-                  <div class="font-medium text-gray-900 text-sm">{{ req.applicant }}</div>
-                  <div class="text-xs text-gray-600">申请: {{ req.tableName }}</div>
+                  <div class="font-black uppercase text-sm">{{ req.applicant }}</div>
+                  <div class="text-xs font-bold mt-1 uppercase">申请: {{ req.tableName }}</div>
                 </div>
-                <span class="px-2 py-0.5 bg-orange-100 text-orange-800 rounded text-xs font-medium">新</span>
+                <span class="px-2 py-1 bg-neo-yellow text-black border-2 border-black text-xs font-black uppercase shadow-neo-sm">新</span>
               </div>
             </div>
           </div>
@@ -41,81 +41,81 @@
       </div>
 
       <!-- 右侧：表格详情和权限管理 -->
-      <div v-if="selectedTable" class="flex-1 p-6 space-y-6">
+      <div v-if="selectedTable" class="flex-1 p-8 space-y-8 bg-white">
         <!-- 表格基本信息 -->
-        <div>
-          <h3 class="font-semibold text-gray-900 mb-3">表格信息</h3>
-          <div class="grid grid-cols-2 gap-4">
+        <div class="border-4 border-black p-6 shadow-neo bg-white">
+          <h3 class="font-black text-xl text-black uppercase mb-4 border-b-4 border-black pb-2 inline-block">表格信息</h3>
+          <div class="grid grid-cols-2 gap-6">
             <div>
-              <label class="block text-xs font-medium text-gray-700 mb-1">表格名称</label>
-              <p class="text-gray-900">{{ selectedTable.name }}</p>
+              <label class="block text-xs font-black text-black uppercase mb-1 bg-neo-lime inline-block px-1 border-2 border-black">表格名称</label>
+              <p class="text-black font-bold text-lg border-b-2 border-black">{{ selectedTable.name }}</p>
             </div>
             <div>
-              <label class="block text-xs font-medium text-gray-700 mb-1">拥有者</label>
-              <p class="text-gray-900">{{ selectedTable.owner }}</p>
+              <label class="block text-xs font-black text-black uppercase mb-1 bg-neo-lime inline-block px-1 border-2 border-black">拥有者</label>
+              <p class="text-black font-bold text-lg border-b-2 border-black">{{ selectedTable.owner }}</p>
             </div>
             <div>
-              <label class="block text-xs font-medium text-gray-700 mb-1">列数</label>
-              <p class="text-gray-900">{{ selectedTable.columns.length }}</p>
+              <label class="block text-xs font-black text-black uppercase mb-1 bg-neo-lime inline-block px-1 border-2 border-black">列数</label>
+              <p class="text-black font-bold text-lg border-b-2 border-black">{{ selectedTable.columns.length }}</p>
             </div>
             <div>
-              <label class="block text-xs font-medium text-gray-700 mb-1">当前访问者</label>
-              <p class="text-gray-900">{{ selectedTable.accessors.length }} 人</p>
+              <label class="block text-xs font-black text-black uppercase mb-1 bg-neo-lime inline-block px-1 border-2 border-black">当前访问者</label>
+              <p class="text-black font-bold text-lg border-b-2 border-black">{{ selectedTable.accessors.length }} 人</p>
             </div>
           </div>
         </div>
 
         <!-- 列权限配置 -->
-        <div>
-          <h3 class="font-semibold text-gray-900 mb-3">列属性管理</h3>
-          <div class="space-y-2">
-            <div v-for="col in selectedTable.columns" :key="col.id" class="p-3 border border-gray-200 rounded-lg">
-              <div class="flex items-center justify-between">
-                <div>
-                  <p class="font-medium text-gray-900 text-sm">{{ col.name }}</p>
-                  <p class="text-xs text-gray-600">类型: {{ col.type }}</p>
-                </div>
-                <button @click="editColumn(col)" 
-                  class="px-2 py-1 text-xs border border-gray-300 rounded hover:bg-gray-50">编辑</button>
+        <div class="border-4 border-black p-6 shadow-neo bg-white">
+          <h3 class="font-black text-xl text-black uppercase mb-4 border-b-4 border-black pb-2 inline-block">列属性管理</h3>
+          <div class="space-y-4">
+            <div v-for="col in selectedTable.columns" :key="col.id" class="p-4 border-4 border-black bg-neo-white flex items-center justify-between hover:shadow-neo-sm transition-shadow">
+              <div>
+                <p class="font-black text-black uppercase">{{ col.name }}</p>
+                <p class="text-xs font-bold text-gray-700 bg-white border-2 border-black px-1 inline-block mt-1">TYPE: {{ col.type }}</p>
               </div>
+              <button @click="editColumn(col)" 
+                class="neo-btn px-3 py-1 text-xs bg-white hover:bg-gray-100 border-2 border-black font-black uppercase shadow-neo-sm">EDIT</button>
             </div>
           </div>
           <button @click="showAddColumnModal = true"
-            class="mt-3 px-4 py-2 border border-dashed border-gray-300 rounded-lg text-sm text-gray-700 hover:border-gray-400 w-full flex items-center justify-center">
-            <iconify-icon icon="mdi:plus" class="mr-1"></iconify-icon>
+            class="mt-4 px-4 py-3 border-4 border-dashed border-black bg-gray-50 text-sm font-black text-black uppercase hover:bg-gray-100 hover:border-solid w-full flex items-center justify-center transition-all">
+            <iconify-icon icon="mdi:plus" class="mr-2 text-xl"></iconify-icon>
             添加新列
           </button>
         </div>
 
         <!-- 访问权限用户 -->
-        <div>
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="font-semibold text-gray-900">访问权限用户</h3>
-            <button class="px-3 py-1 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700">
+        <div class="border-4 border-black p-6 shadow-neo bg-white">
+          <div class="flex items-center justify-between mb-4 border-b-4 border-black pb-2">
+            <h3 class="font-black text-xl text-black uppercase">访问权限用户</h3>
+            <button class="neo-btn px-3 py-2 text-sm bg-black text-white hover:bg-gray-800 flex items-center uppercase">
               <iconify-icon icon="mdi:plus" class="mr-1"></iconify-icon>
-              添加用户
+              ADD USER
             </button>
           </div>
-          <div class="space-y-2">
+          <div class="space-y-4">
             <div v-for="accessor in selectedTable.accessors" :key="accessor.id" 
-              class="p-3 border border-gray-200 rounded-lg">
+              class="p-4 border-4 border-black bg-white hover:shadow-neo-sm transition-shadow">
               <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                  <div class="w-8 h-8 bg-gray-200 rounded-full"></div>
+                <div class="flex items-center space-x-4">
+                  <div class="w-10 h-10 bg-neo-blue border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center">
+                    <iconify-icon icon="mdi:account" class="text-white text-xl"></iconify-icon>
+                  </div>
                   <div>
-                    <p class="font-medium text-gray-900 text-sm">{{ accessor.name }}</p>
-                    <p class="text-xs text-gray-600">{{ accessor.department }}</p>
+                    <p class="font-black text-black uppercase">{{ accessor.name }}</p>
+                    <p class="text-xs font-bold text-black border-2 border-black px-1 mt-1 bg-neo-yellow inline-block">{{ accessor.department }}</p>
                   </div>
                 </div>
-                <div class="flex items-center space-x-2">
+                <div class="flex items-center space-x-3">
                   <select :value="accessor.permission" @change="(e) => updateAccessor(accessor.id, e.target.value)"
-                    class="px-2 py-1 border border-gray-300 rounded text-xs">
+                    class="neo-input px-2 py-1 bg-white border-2 border-black font-bold uppercase cursor-pointer text-xs">
                     <option value="view">只读</option>
                     <option value="edit">编辑</option>
                     <option value="admin">管理</option>
                   </select>
                   <button @click="removeAccessor(accessor.id)"
-                    class="px-2 py-1 text-xs text-red-600 hover:text-red-800">移除</button>
+                    class="neo-btn px-2 py-1 text-xs bg-neo-pink text-black border-2 border-black hover:shadow-neo-sm uppercase font-black">移除</button>
                 </div>
               </div>
             </div>
@@ -123,26 +123,29 @@
         </div>
 
         <!-- PR列表 -->
-        <div>
-          <h3 class="font-semibold text-gray-900 mb-3">开放的Pull Requests</h3>
-          <div class="space-y-2">
+        <div class="border-4 border-black p-6 shadow-neo bg-white">
+          <h3 class="font-black text-xl text-black uppercase mb-4 border-b-4 border-black pb-2 inline-block">开放的Pull Requests</h3>
+          <div class="space-y-4">
             <div v-for="pr in selectedTable.pullRequests" :key="pr.id"
-              class="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+              class="p-4 border-4 border-black bg-neo-white hover:bg-white cursor-pointer hover:shadow-neo transition-all">
               <div class="flex items-start justify-between">
                 <div class="flex-1">
-                  <p class="font-medium text-gray-900 text-sm">PR #{{ pr.number }}: {{ pr.title }}</p>
-                  <p class="text-xs text-gray-600 mt-1">由 {{ pr.author }} 在 {{ pr.createdAt }}</p>
-                  <div class="flex space-x-2 mt-2">
-                    <span v-for="change in pr.changes" :key="change" class="px-1.5 py-0.5 bg-blue-100 text-blue-800 rounded text-xs">
+                  <p class="font-black text-black uppercase flex items-center">
+                    <span class="bg-black text-white px-2 py-0.5 mr-2 text-xs">#{{ pr.number }}</span>
+                    {{ pr.title }}
+                  </p>
+                  <p class="text-xs font-bold text-gray-600 mt-2 border-l-4 border-black pl-2">Created by {{ pr.author }} on {{ pr.createdAt }}</p>
+                  <div class="flex space-x-2 mt-3">
+                    <span v-for="change in pr.changes" :key="change" class="px-2 py-1 bg-neo-blue text-white border-2 border-black text-xs font-black uppercase shadow-neo-sm">
                       {{ change }}
                     </span>
                   </div>
                 </div>
-                <div class="flex space-x-2">
+                <div class="flex space-x-3">
                   <button @click="approvePR(pr.id)"
-                    class="px-3 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700">合并</button>
+                    class="neo-btn px-3 py-1 text-xs bg-neo-lime text-black border-2 border-black hover:bg-green-400 uppercase font-black">合并</button>
                   <button @click="rejectPR(pr.id)"
-                    class="px-3 py-1 text-xs border border-gray-300 text-gray-700 rounded hover:bg-gray-50">拒绝</button>
+                    class="neo-btn px-3 py-1 text-xs bg-white text-black border-2 border-black hover:bg-gray-100 uppercase font-black">拒绝</button>
                 </div>
               </div>
             </div>
@@ -151,68 +154,71 @@
       </div>
 
       <!-- 权限申请处理 -->
-      <div v-else-if="selectedRequest" class="flex-1 p-6">
-        <div class="mb-6 pb-6 border-b border-gray-200">
-          <h3 class="font-semibold text-gray-900 mb-3">权限申请详情</h3>
-          <div class="space-y-4">
+      <div v-else-if="selectedRequest" class="flex-1 p-8 bg-white">
+        <div class="mb-8 pb-6 border-b-4 border-black">
+          <h3 class="font-black text-2xl text-black uppercase mb-6 bg-neo-pink inline-block px-2 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">权限申请详情</h3>
+          <div class="space-y-6 border-4 border-black p-6 shadow-neo bg-white">
             <div>
-              <label class="block text-xs font-medium text-gray-700 mb-1">申请人</label>
-              <p class="text-gray-900">{{ selectedRequest.applicant }}</p>
+              <label class="block text-xs font-black text-black uppercase mb-1 bg-neo-yellow inline-block px-1 border-2 border-black">申请人</label>
+              <p class="text-black font-bold text-lg border-b-2 border-black mt-1">{{ selectedRequest.applicant }}</p>
             </div>
             <div>
-              <label class="block text-xs font-medium text-gray-700 mb-1">申请表格</label>
-              <p class="text-gray-900">{{ selectedRequest.tableName }}</p>
+              <label class="block text-xs font-black text-black uppercase mb-1 bg-neo-yellow inline-block px-1 border-2 border-black">申请表格</label>
+              <p class="text-black font-bold text-lg border-b-2 border-black mt-1">{{ selectedRequest.tableName }}</p>
             </div>
             <div>
-              <label class="block text-xs font-medium text-gray-700 mb-1">申请权限类型</label>
-              <p class="text-gray-900">{{ selectedRequest.type === 'view' ? '只读' : '编辑' }}</p>
+              <label class="block text-xs font-black text-black uppercase mb-1 bg-neo-yellow inline-block px-1 border-2 border-black">申请权限类型</label>
+              <p class="text-black font-bold text-lg border-b-2 border-black mt-1 uppercase">{{ selectedRequest.type === 'view' ? '只读' : '编辑' }}</p>
             </div>
             <div>
-              <label class="block text-xs font-medium text-gray-700 mb-1">申请的列</label>
+              <label class="block text-xs font-black text-black uppercase mb-2 bg-neo-yellow inline-block px-1 border-2 border-black">申请的列</label>
               <div class="flex flex-wrap gap-2">
                 <span v-for="col in selectedRequest.columns" :key="col"
-                  class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs">
+                  class="px-2 py-1 bg-white border-2 border-black text-black font-bold uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-xs">
                   {{ col }}
                 </span>
               </div>
             </div>
             <div>
-              <label class="block text-xs font-medium text-gray-700 mb-1">申请原因</label>
-              <p class="text-gray-700 text-sm">{{ selectedRequest.reason }}</p>
+              <label class="block text-xs font-black text-black uppercase mb-1 bg-neo-yellow inline-block px-1 border-2 border-black">申请原因</label>
+              <p class="text-black font-bold text-sm border-l-4 border-black pl-2 mt-1 bg-neo-white p-2">{{ selectedRequest.reason }}</p>
             </div>
             <div>
-              <label class="block text-xs font-medium text-gray-700 mb-1">申请时间</label>
-              <p class="text-gray-600 text-sm">{{ selectedRequest.timestamp }}</p>
+              <label class="block text-xs font-black text-black uppercase mb-1 bg-neo-yellow inline-block px-1 border-2 border-black">申请时间</label>
+              <p class="text-gray-600 font-bold text-sm bg-white p-1">{{ selectedRequest.timestamp }}</p>
             </div>
           </div>
         </div>
 
         <!-- 审批意见 -->
-        <div class="space-y-3">
+        <div class="space-y-4 border-4 border-black p-6 shadow-neo bg-neo-white">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">审批意见</label>
+            <label class="block text-sm font-black text-black uppercase mb-2">审批意见</label>
             <textarea v-model="approvalComment"
-              placeholder="输入审批意见..."
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"></textarea>
+              placeholder="YOUR COMMENT..."
+              class="neo-input w-full px-3 py-2 bg-white text-black font-bold uppercase border-2 border-black"></textarea>
           </div>
 
-          <div class="flex gap-3">
+          <div class="flex gap-4">
             <button @click="approveRequest"
-              class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium text-sm">
-              <iconify-icon icon="mdi:check" class="mr-1"></iconify-icon>
+              class="neo-btn flex-1 px-4 py-3 bg-neo-lime text-black border-2 border-black hover:shadow-neo font-black text-sm uppercase flex justify-center items-center">
+              <iconify-icon icon="mdi:check" class="mr-2 text-xl"></iconify-icon>
               批准
             </button>
             <button @click="rejectRequest"
-              class="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium text-sm">
-              <iconify-icon icon="mdi:close" class="mr-1"></iconify-icon>
+              class="neo-btn flex-1 px-4 py-3 bg-neo-pink text-black border-2 border-black hover:shadow-neo font-black text-sm uppercase flex justify-center items-center">
+              <iconify-icon icon="mdi:close" class="mr-2 text-xl"></iconify-icon>
               拒绝
             </button>
           </div>
         </div>
       </div>
 
-      <div v-else class="flex-1 flex items-center justify-center text-gray-500">
-        <p>请选择一个表格或权限申请</p>
+      <div v-else class="flex-1 flex items-center justify-center text-black font-black uppercase text-xl bg-neo-white border-l-4 border-black">
+        <div class="text-center">
+          <iconify-icon icon="mdi:arrow-left" class="text-6xl mb-4"></iconify-icon>
+          <p>请选择一个表格或权限申请</p>
+        </div>
       </div>
     </div>
   </div>

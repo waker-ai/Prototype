@@ -1,12 +1,12 @@
 <template>
   <div class="flex flex-col h-full">
     <!-- 表格工具栏 -->
-    <div class="bg-white border-b border-gray-200 p-4 space-y-3">
+    <div class="bg-white border-b-4 border-black p-4 space-y-3 shadow-neo-sm">
       <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-2">
-          <input type="text" placeholder="搜索表格..." 
-            class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500" />
-          <select class="px-3 py-2 border border-gray-300 rounded-lg text-sm">
+        <div class="flex items-center space-x-3">
+          <input type="text" placeholder="SEARCH TABLE..." 
+            class="neo-input px-3 py-2 bg-white text-black font-bold placeholder-gray-500 w-64 uppercase" />
+          <select class="neo-input px-3 py-2 bg-white text-black font-bold uppercase cursor-pointer">
             <option>所有表格</option>
             <option>我创建的</option>
             <option>我有权访问的</option>
@@ -14,40 +14,41 @@
         </div>
         <div class="flex space-x-2">
           <button @click="showCreateTableModal = true" 
-            class="px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm flex items-center">
-            <iconify-icon icon="mdi:plus" class="mr-1"></iconify-icon>
-            新建表格
+            class="neo-btn bg-black text-white hover:bg-gray-800 text-sm flex items-center px-4 py-2">
+            <iconify-icon icon="mdi:plus" class="mr-2 text-lg"></iconify-icon>
+            NEW TABLE
           </button>
         </div>
       </div>
     </div>
 
     <!-- 表格列表 -->
-    <div class="flex-1 overflow-y-auto p-4">
-      <div class="space-y-3">
-        <div v-for="table in tables" :key="table.id" 
+    <div class="flex-1 overflow-y-auto p-4 bg-neo-white animate-fade-in-up">
+      <div class="space-y-4">
+        <div v-for="(table, index) in tables" :key="table.id" 
           @click="selectTable(table.id)"
-          :class="['p-4 rounded-lg border-2 cursor-pointer transition', 
+          :style="{ animationDelay: `${index * 0.1}s` }"
+          :class="['p-4 border-4 border-black cursor-pointer transition-all shadow-neo hover:-translate-y-1 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] animate-fade-in-up', 
             selectedTableId === table.id 
-              ? 'border-indigo-600 bg-indigo-50' 
-              : 'border-gray-200 bg-white hover:border-gray-300']">
+              ? 'bg-neo-yellow' 
+              : 'bg-white hover:bg-gray-50']">
           <div class="flex items-start justify-between">
             <div class="flex-1">
-              <h3 class="font-medium text-gray-900">{{ table.name }}</h3>
-              <p class="text-xs text-gray-600 mt-1">{{ table.description }}</p>
-              <div class="flex items-center space-x-4 mt-2 text-xs text-gray-500">
-                <span>{{ table.columns }}列</span>
-                <span>{{ table.rows }}行</span>
-                <span>拥有者: {{ table.owner }}</span>
+              <h3 class="font-black text-xl text-black uppercase tracking-tight">{{ table.name }}</h3>
+              <p class="text-sm font-bold text-gray-700 mt-1 border-l-4 border-black pl-2">{{ table.description }}</p>
+              <div class="flex items-center space-x-4 mt-3 text-xs font-bold text-black uppercase">
+                <span class="bg-white px-2 py-1 border-2 border-black">{{ table.columns }}列</span>
+                <span class="bg-white px-2 py-1 border-2 border-black">{{ table.rows }}行</span>
+                <span class="bg-neo-blue text-white px-2 py-1 border-2 border-black">拥有者: {{ table.owner }}</span>
               </div>
             </div>
             <div class="flex flex-col items-end space-y-1">
               <span v-if="table.myAccessLevel" 
-                :class="['px-2 py-1 rounded text-xs font-medium',
-                  table.myAccessLevel === 'edit' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800']">
+                :class="['px-2 py-1 border-2 border-black text-xs font-black uppercase shadow-neo-sm',
+                  table.myAccessLevel === 'edit' ? 'bg-neo-lime text-black' : 'bg-neo-pink text-black']">
                 {{ table.myAccessLevel === 'edit' ? '可编辑' : '只读' }}
               </span>
-              <span v-else class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-xs">无权限</span>
+              <span v-else class="px-2 py-1 bg-gray-200 border-2 border-black text-black text-xs font-black uppercase shadow-neo-sm">无权限</span>
             </div>
           </div>
         </div>
@@ -55,45 +56,45 @@
     </div>
 
     <!-- 表格详情区域 -->
-    <div v-if="selectedTableId" class="border-t border-gray-200 h-1/2 flex flex-col">
+    <div v-if="selectedTableId" class="border-t-4 border-black h-1/2 flex flex-col bg-white">
       <!-- 详情工具栏 -->
-      <div class="bg-gray-50 border-b border-gray-200 p-4">
+      <div class="bg-neo-lime border-b-4 border-black p-4">
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-3">
-            <h3 class="font-semibold text-gray-900">{{ selectedTable?.name }}</h3>
-            <span v-if="isEditingBranch" class="px-2 py-1 bg-purple-100 text-purple-800 rounded text-xs font-medium flex items-center">
+            <h3 class="font-black text-2xl uppercase tracking-tighter text-black">{{ selectedTable?.name }}</h3>
+            <span v-if="isEditingBranch" class="px-2 py-1 bg-neo-pink text-black border-2 border-black text-xs font-black uppercase flex items-center shadow-neo-sm transform -rotate-2">
               <iconify-icon icon="mdi:source-branch" class="mr-1"></iconify-icon>
               {{ currentBranch }}
             </span>
-            <span v-else class="text-xs text-gray-600">主分支</span>
+            <span v-else class="px-2 py-1 bg-white text-black border-2 border-black text-xs font-black uppercase shadow-neo-sm">MAIN BRANCH</span>
           </div>
           <div class="flex space-x-2">
             <button v-if="selectedTable?.myAccessLevel === 'edit' && !isEditingBranch"
               @click="createBranch" 
-              class="px-3 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 text-sm flex items-center">
+              class="neo-btn bg-black text-white px-3 py-2 text-sm flex items-center hover:bg-gray-800">
               <iconify-icon icon="mdi:source-branch" class="mr-1"></iconify-icon>
               创建分支
             </button>
             <button v-if="isEditingBranch"
               @click="submitChanges" 
-              class="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm flex items-center">
+              class="neo-btn bg-neo-yellow text-black px-3 py-2 text-sm flex items-center hover:bg-yellow-400">
               <iconify-icon icon="mdi:check" class="mr-1"></iconify-icon>
               提交PR
             </button>
             <button v-if="selectedTable?.myAccessLevel"
               @click="exportTable" 
-              class="px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 text-sm flex items-center">
+              class="neo-btn bg-white text-black px-3 py-2 text-sm flex items-center hover:bg-gray-100">
               <iconify-icon icon="mdi:download" class="mr-1"></iconify-icon>
               导出
             </button>
             <button v-if="!selectedTable?.myAccessLevel"
               @click="requestAccess" 
-              class="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm flex items-center">
+              class="neo-btn bg-neo-blue text-black px-3 py-2 text-sm flex items-center hover:bg-blue-600">
               <iconify-icon icon="mdi:plus-circle" class="mr-1"></iconify-icon>
               申请权限
             </button>
             <button @click="showTableHistory = true"
-              class="px-3 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 text-sm flex items-center">
+              class="neo-btn bg-white text-black px-3 py-2 text-sm flex items-center hover:bg-gray-100">
               <iconify-icon icon="mdi:history" class="mr-1"></iconify-icon>
               历史
             </button>
@@ -102,10 +103,10 @@
 
         <!-- 列选择器 -->
         <div v-if="selectedTable?.myAccessLevel" class="mt-3 flex items-center space-x-2">
-          <span class="text-xs font-medium text-gray-700">显示列:</span>
+          <span class="text-xs font-black uppercase text-black bg-white px-1 border-2 border-black">显示列:</span>
           <div class="flex flex-wrap gap-2">
-            <label v-for="col in selectedTable.allColumns" :key="col" class="flex items-center text-xs">
-              <input type="checkbox" v-model="visibleColumns" :value="col" class="mr-1" />
+            <label v-for="col in selectedTable.allColumns" :key="col" class="flex items-center text-xs font-bold uppercase cursor-pointer hover:bg-white hover:bg-opacity-50 px-1 rounded">
+              <input type="checkbox" v-model="visibleColumns" :value="col" class="mr-1 accent-black w-4 h-4 border-2 border-black" />
               {{ col }}
             </label>
           </div>
@@ -113,33 +114,35 @@
       </div>
 
       <!-- 表格区域 -->
-      <div class="flex-1 overflow-auto">
-        <table class="w-full border-collapse">
-          <thead class="bg-gray-100 sticky top-0">
-            <tr>
-              <th v-for="col in visibleColumns" :key="col" class="border border-gray-200 px-4 py-2 text-left text-sm font-medium text-gray-900">
-                {{ col }}
-              </th>
-              <th v-if="isEditingBranch" class="border border-gray-200 px-4 py-2 text-left text-sm font-medium text-gray-900">操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(row, idx) in displayedTableData" :key="idx" class="hover:bg-gray-50">
-              <td v-for="col in visibleColumns" :key="col" class="border border-gray-200 px-4 py-2 text-sm">
-                <input v-if="isEditingBranch" v-model="row[col]" class="w-full px-2 py-1 border border-gray-300 rounded" />
-                <span v-else>{{ row[col] }}</span>
-              </td>
-              <td v-if="isEditingBranch" class="border border-gray-200 px-4 py-2 text-sm">
-                <button @click="deleteRow(idx)" class="text-red-600 hover:text-red-800 text-xs">删除</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="flex-1 overflow-auto bg-neo-white p-4">
+        <div class="border-4 border-black shadow-neo bg-white">
+          <table class="w-full border-collapse">
+            <thead class="bg-black text-white sticky top-0">
+              <tr>
+                <th v-for="col in visibleColumns" :key="col" class="border-r-2 border-white px-4 py-3 text-left text-sm font-black uppercase last:border-r-0">
+                  {{ col }}
+                </th>
+                <th v-if="isEditingBranch" class="border-r-2 border-white px-4 py-3 text-left text-sm font-black uppercase last:border-r-0">操作</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y-2 divide-black">
+              <tr v-for="(row, idx) in displayedTableData" :key="idx" class="hover:bg-neo-yellow transition-colors group">
+                <td v-for="col in visibleColumns" :key="col" class="border-r-2 border-black px-4 py-2 text-sm font-bold text-black last:border-r-0">
+                  <input v-if="isEditingBranch" v-model="row[col]" class="w-full px-2 py-1 border-2 border-black focus:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] focus:outline-none font-bold" />
+                  <span v-else>{{ row[col] }}</span>
+                </td>
+                <td v-if="isEditingBranch" class="border-r-2 border-black px-4 py-2 text-sm font-bold text-black last:border-r-0">
+                  <button @click="deleteRow(idx)" class="bg-neo-pink text-black border-2 border-black px-2 py-1 text-xs font-black uppercase hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">删除</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <!-- 表格操作 -->
-      <div v-if="isEditingBranch" class="bg-gray-50 border-t border-gray-200 p-3">
-        <button @click="addRow" class="px-3 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 text-sm">
+      <div v-if="isEditingBranch" class="bg-white border-t-4 border-black p-3 flex justify-end">
+        <button @click="addRow" class="neo-btn bg-black text-white px-3 py-2 text-sm flex items-center hover:bg-gray-800">
           <iconify-icon icon="mdi:plus" class="mr-1"></iconify-icon>
           新增行
         </button>
@@ -147,92 +150,98 @@
     </div>
 
     <!-- 权限申请弹窗 -->
-    <div v-if="showPermissionRequestModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-      <div class="bg-white rounded-xl shadow-xl w-96 p-6">
-        <h3 class="text-lg font-bold text-gray-900 mb-4">申请表格访问权限</h3>
+    <div v-if="showPermissionRequestModal" class="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center backdrop-blur-sm">
+      <div class="bg-white border-4 border-black shadow-neo w-96 p-8 relative">
+        <h3 class="text-2xl font-black text-black uppercase mb-6 border-b-4 border-black pb-2">申请表格访问权限</h3>
         
-        <div class="space-y-4">
+        <div class="space-y-6">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">申请表格</label>
-            <p class="text-gray-900 font-medium">{{ selectedTable?.name }}</p>
+            <label class="block text-sm font-black text-black uppercase mb-2">申请表格</label>
+            <p class="text-black font-bold text-lg bg-neo-white border-2 border-black p-2">{{ selectedTable?.name }}</p>
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">申请权限类型</label>
-            <div class="space-y-2">
-              <label class="flex items-center">
-                <input type="radio" v-model="permissionRequest.type" value="view" class="mr-2" />
-                <span class="text-sm text-gray-700">只读（查看）</span>
+            <label class="block text-sm font-black text-black uppercase mb-2">申请权限类型</label>
+            <div class="space-y-3">
+              <label class="flex items-center cursor-pointer group">
+                <div class="relative">
+                  <input type="radio" v-model="permissionRequest.type" value="view" class="peer sr-only" />
+                  <div class="w-6 h-6 border-2 border-black bg-white peer-checked:bg-neo-blue transition-all"></div>
+                </div>
+                <span class="ml-3 text-sm font-bold text-black group-hover:underline uppercase">只读（查看）</span>
               </label>
-              <label class="flex items-center">
-                <input type="radio" v-model="permissionRequest.type" value="edit" class="mr-2" />
-                <span class="text-sm text-gray-700">编辑</span>
-              </label>
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">申请的列 <span class="text-red-500">*</span></label>
-            <div class="space-y-2 max-h-40 overflow-y-auto border border-gray-200 rounded p-3">
-              <label v-for="col in selectedTable?.allColumns" :key="col" class="flex items-center">
-                <input type="checkbox" v-model="permissionRequest.columns" :value="col" class="mr-2" />
-                <span class="text-sm text-gray-700">{{ col }}</span>
+              <label class="flex items-center cursor-pointer group">
+                <div class="relative">
+                  <input type="radio" v-model="permissionRequest.type" value="edit" class="peer sr-only" />
+                  <div class="w-6 h-6 border-2 border-black bg-white peer-checked:bg-neo-lime transition-all"></div>
+                </div>
+                <span class="ml-3 text-sm font-bold text-black group-hover:underline uppercase">编辑</span>
               </label>
             </div>
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">申请原因</label>
+            <label class="block text-sm font-black text-black uppercase mb-2">申请的列 <span class="text-neo-pink">*</span></label>
+            <div class="space-y-2 max-h-40 overflow-y-auto border-2 border-black p-3 bg-neo-white">
+              <label v-for="col in selectedTable?.allColumns" :key="col" class="flex items-center cursor-pointer hover:bg-white p-1 border border-transparent hover:border-black">
+                <input type="checkbox" v-model="permissionRequest.columns" :value="col" class="mr-2 accent-black w-4 h-4 border-2 border-black cursor-pointer" />
+                <span class="text-sm font-bold text-black uppercase">{{ col }}</span>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-black text-black uppercase mb-2">申请原因</label>
             <textarea v-model="permissionRequest.reason"
-              placeholder="请说明你需要访问这些列的原因..."
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+              placeholder="YOUR REASON..."
+              class="neo-input w-full px-3 py-2 bg-white text-black font-bold text-sm uppercase"
               rows="3"></textarea>
           </div>
         </div>
 
-        <div class="flex gap-3 mt-6">
+        <div class="flex gap-4 mt-8">
           <button @click="showPermissionRequestModal = false" 
-            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">取消</button>
+            class="neo-btn flex-1 bg-white text-black hover:bg-gray-100">取消</button>
           <button @click="submitPermissionRequest" 
-            class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">提交申请</button>
+            class="neo-btn flex-1 bg-black text-white hover:bg-gray-800">提交申请</button>
         </div>
       </div>
     </div>
 
     <!-- 表格历史弹窗 -->
-    <div v-if="showTableHistory" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-      <div class="bg-white rounded-xl shadow-xl w-2/3 max-h-96 p-6 flex flex-col">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-bold text-gray-900">表格历史版本</h3>
-          <button @click="showTableHistory = false" class="text-gray-500 hover:text-gray-700">
+    <div v-if="showTableHistory" class="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center backdrop-blur-sm">
+      <div class="bg-white border-4 border-black shadow-neo w-2/3 max-h-96 flex flex-col p-0">
+        <div class="flex justify-between items-center p-6 border-b-4 border-black bg-neo-yellow">
+          <h3 class="text-2xl font-black text-black uppercase">表格历史版本</h3>
+          <button @click="showTableHistory = false" class="text-black hover:scale-110 transition-transform bg-white border-2 border-black p-1 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[2px] active:translate-y-[2px]">
             <iconify-icon icon="mdi:close" class="text-xl"></iconify-icon>
           </button>
         </div>
 
-        <div class="flex-1 overflow-y-auto space-y-2">
+        <div class="flex-1 overflow-y-auto space-y-4 p-6 bg-neo-white">
           <div v-for="version in tableVersions" :key="version.id"
             @click="selectVersion(version.id)"
-            :class="['p-3 border rounded-lg cursor-pointer', 
-              selectedVersionId === version.id ? 'border-indigo-600 bg-indigo-50' : 'border-gray-200 hover:border-gray-300']">
+            :class="['p-4 border-4 border-black cursor-pointer transition-all shadow-neo-sm hover:shadow-neo', 
+              selectedVersionId === version.id ? 'bg-neo-blue' : 'bg-white hover:-translate-y-1']">
             <div class="flex items-start justify-between">
               <div class="flex-1">
-                <div class="flex items-center space-x-2">
-                  <span class="font-medium text-gray-900">{{ version.author }}</span>
-                  <span class="text-xs text-gray-600">{{ version.timestamp }}</span>
+                <div class="flex items-center space-x-3 mb-1">
+                  <span class="font-black text-lg text-black uppercase">{{ version.author }}</span>
+                  <span class="text-xs font-bold bg-black text-white px-2 py-0.5">{{ version.timestamp }}</span>
                 </div>
-                <p class="text-sm text-gray-600 mt-1">{{ version.message }}</p>
+                <p class="text-sm font-bold text-black border-l-4 border-black pl-2" :class="selectedVersionId === version.id ? 'text-white border-white' : ''">{{ version.message }}</p>
               </div>
-              <button v-if="version.isPR" class="px-2 py-1 bg-purple-100 text-purple-800 rounded text-xs font-medium">
+              <button v-if="version.isPR" class="px-2 py-1 bg-neo-pink text-black border-2 border-black text-xs font-black uppercase shadow-neo-sm transform rotate-2">
                 PR #{{ version.prNumber }}
               </button>
             </div>
-            <div v-if="selectedVersionId === version.id && version.changes" class="mt-3 pt-3 border-t border-gray-200">
-              <p class="text-xs font-medium text-gray-700 mb-2">修改详情:</p>
-              <div class="text-xs space-y-1">
+            <div v-if="selectedVersionId === version.id && version.changes" class="mt-4 pt-4 border-t-4 border-black border-dashed">
+              <p class="text-xs font-black text-white uppercase mb-2 bg-black inline-block px-1">修改详情:</p>
+              <div class="text-xs space-y-2 font-bold">
                 <div v-for="change in version.changes" :key="`${change.row}-${change.col}`"
-                  :class="['px-2 py-1 rounded', change.type === 'add' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800']">
+                  :class="['px-3 py-2 border-2 border-black shadow-neo-sm', change.type === 'add' ? 'bg-neo-lime text-black' : 'bg-neo-yellow text-black']">
                   {{ change.type === 'add' ? '新增' : '修改' }} 第 {{ change.row }} 行, 列 {{ change.col }}: 
-                  <span v-if="change.oldValue" class="line-through">{{ change.oldValue }}</span> 
+                  <span v-if="change.oldValue" class="line-through decoration-2 decoration-red-500">{{ change.oldValue }}</span> 
                   → {{ change.newValue }}
                 </div>
               </div>
@@ -240,9 +249,9 @@
           </div>
         </div>
 
-        <div class="mt-4 flex justify-end">
+        <div class="p-6 border-t-4 border-black bg-white flex justify-end">
           <button @click="showTableHistory = false" 
-            class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">关闭</button>
+            class="neo-btn bg-black text-white hover:bg-gray-800 px-6 py-2">关闭</button>
         </div>
       </div>
     </div>
@@ -254,35 +263,35 @@
       @close="closeDetailModal" />
 
     <!-- 创建表格弹窗 -->
-    <div v-if="showCreateTableModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-      <div class="bg-white rounded-xl shadow-xl w-96 p-6">
-        <h3 class="text-lg font-bold text-gray-900 mb-4">新建表格</h3>
+    <div v-if="showCreateTableModal" class="fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center backdrop-blur-sm">
+      <div class="bg-white border-4 border-black shadow-neo w-96 p-8 relative">
+        <h3 class="text-2xl font-black text-black uppercase mb-6 border-b-4 border-black pb-2">新建表格</h3>
         
-        <div class="space-y-4">
+        <div class="space-y-6">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">表格名称</label>
-            <input v-model="newTable.name" type="text" placeholder="输入表格名称"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" />
+            <label class="block text-sm font-black text-black uppercase mb-2">表格名称</label>
+            <input v-model="newTable.name" type="text" placeholder="TABLE NAME..."
+              class="neo-input w-full px-3 py-2 bg-white text-black font-bold uppercase" />
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">表格描述</label>
-            <textarea v-model="newTable.description" placeholder="输入表格描述"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" rows="3"></textarea>
+            <label class="block text-sm font-black text-black uppercase mb-2">表格描述</label>
+            <textarea v-model="newTable.description" placeholder="DESCRIPTION..."
+              class="neo-input w-full px-3 py-2 bg-white text-black font-bold uppercase" rows="3"></textarea>
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">列名（用逗号分隔）</label>
-            <input v-model="newTable.columns" type="text" placeholder="如: ID,名称,部门,创建时间"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" />
+            <label class="block text-sm font-black text-black uppercase mb-2">列名（用逗号分隔）</label>
+            <input v-model="newTable.columns" type="text" placeholder="ID,NAME,DEPT..."
+              class="neo-input w-full px-3 py-2 bg-white text-black font-bold uppercase" />
           </div>
         </div>
 
-        <div class="flex gap-3 mt-6">
+        <div class="flex gap-4 mt-8">
           <button @click="showCreateTableModal = false" 
-            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">取消</button>
+            class="neo-btn flex-1 bg-white text-black hover:bg-gray-100">取消</button>
           <button @click="createNewTable" 
-            class="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">创建</button>
+            class="neo-btn flex-1 bg-black text-white hover:bg-gray-800">创建</button>
         </div>
       </div>
     </div>
